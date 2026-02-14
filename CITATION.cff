@@ -16,9 +16,12 @@ abstract: >-
   from the likelihood. The resulting likelihood is expressed entirely in
   terms of component hazard and reliability functions, covering exact,
   right-censored, left-censored, and interval-censored observations. We
-  establish formal identifiability conditions based on the diagnostic
-  separability of candidate sets and provide instantiations for five common
-  parametric families.
+  establish formal identifiability conditions: a necessary condition
+  showing that diagnostically confounded components cannot be separately
+  identified, and a sufficient condition guaranteeing identifiability
+  when candidate sets separate every component pair and the component
+  hazard functions are linearly independent. We provide instantiations
+  for five common parametric families.
 keywords:
   - reliability
   - series systems
