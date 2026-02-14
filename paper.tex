@@ -67,6 +67,11 @@ lifetime parameters---allow the unknown masking distribution to be eliminated
 from the likelihood.
 We present the resulting likelihood contributions for exact failures with
 masked cause, right-censored, left-censored, and interval-censored observations.
+We establish formal identifiability conditions: a necessary condition showing
+that diagnostically confounded components cannot be separately identified,
+and a sufficient condition guaranteeing identifiability when candidate sets
+separate every component pair and the component hazard functions are linearly
+independent.
 The framework serves as a foundation for distribution-specific inference,
 and we provide a summary of instantiations for five common lifetime distribution
 families.
@@ -143,7 +148,9 @@ provides a unified treatment of the framework
 in a single self-contained document.
 The value lies in the unified presentation, the extension of the
 likelihood to all four censoring types (exact, right, left, and
-interval), the identifiability analysis, and the five-family
+interval), formal identifiability results that characterize precisely
+when component parameters can be recovered from masked data
+(Theorem~\ref{thm:identifiability}), and the five-family
 instantiation table (Section~\ref{sec:families}).
 Companion papers and software packages can cite this work for the
 general theory while focusing on distribution-specific derivations
@@ -1751,6 +1758,11 @@ The key results are:
     through~\ref{sec:c3});
     \item The combined likelihood contribution under C1--C2--C3
     (Theorem~\ref{thm:likelihood-contribution});
+    \item Formal identifiability conditions: a necessary condition
+    showing that diagnostically confounded components are
+    non-identifiable, and a sufficient condition guaranteeing
+    identifiability when the masking mechanism separates all
+    component pairs (Theorem~\ref{thm:identifiability});
     \item The general log-likelihood and a recipe for applying the
     framework to any parametric hazard specification
     (Section~\ref{sec:mle});
