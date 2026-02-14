@@ -1632,8 +1632,8 @@ censoring scenarios, and developing specialized software packages, all
 while citing the present work for the general theory.
 The layered software stack described in
 Section~\ref{sec:software}---from component specification
-(\texttt{dfr.dist}) through series composition
-(\texttt{dfr.dist.series}) to masked-data likelihood
+(\texttt{flexhaz}) through series composition
+(\texttt{serieshaz}) to masked-data likelihood
 (\texttt{dfr.lik.series.md})---demonstrates this modularity:
 new component distributions inherit the full estimation pipeline
 without distribution-specific likelihood code.
@@ -1699,14 +1699,14 @@ Several practical issues arise when applying the framework:
 
 The framework developed in this paper is implemented as a layered
 software stack in the R statistical computing
-environment~\citep{towell2025dfrdist,towell2025dfrdistseries,towell2025dfrliksmd}.
-At the base, the \texttt{dfr.dist}
-package~\citep{towell2025dfrdist} provides a hazard-function-first
+environment~\citep{towell2025flexhaz,towell2025serieshaz,towell2025dfrliksmd}.
+At the base, the \texttt{flexhaz}
+package~\citep{towell2025flexhaz} provides a hazard-function-first
 abstraction for individual component lifetime distributions: each
 distribution is specified by its hazard function, from which the
 cumulative hazard, reliability, density, and random sampling follow
 (cf.\ Equations~\eqref{eq:cumhaz-def}--\eqref{eq:pdf-from-haz}).
-The \texttt{dfr.dist.series} package~\citep{towell2025dfrdistseries}
+The \texttt{serieshaz} package~\citep{towell2025serieshaz}
 composes components into series system distributions using hazard
 additivity (Theorem~\ref{thm:sys-hazard}), with a parameter layout
 that maps the global vector~$\btheta$ to component-specific
@@ -1719,7 +1719,7 @@ interval-censored), taking arbitrary component hazard closures as
 input.
 Together these packages enable practitioners to apply the recipe of
 Section~\ref{sec:recipe} with any component distribution in the
-\texttt{dfr.dist} ecosystem, without writing distribution-specific
+\texttt{flexhaz} ecosystem, without writing distribution-specific
 likelihood code.
 
 For Weibull component lifetimes specifically, the
