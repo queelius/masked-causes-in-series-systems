@@ -1634,7 +1634,7 @@ The layered software stack described in
 Section~\ref{sec:software}---from component specification
 (\texttt{flexhaz}) through series composition
 (\texttt{serieshaz}) to masked-data likelihood
-(\texttt{dfr.lik.series.md})---demonstrates this modularity:
+(\texttt{maskedhaz})---demonstrates this modularity:
 new component distributions inherit the full estimation pipeline
 without distribution-specific likelihood code.
 
@@ -1699,7 +1699,7 @@ Several practical issues arise when applying the framework:
 
 The framework developed in this paper is implemented as a layered
 software stack in the R statistical computing
-environment~\citep{towell2025flexhaz,towell2025serieshaz,towell2025dfrliksmd}.
+environment~\citep{towell2025flexhaz,towell2025serieshaz,towell2025maskedhaz}.
 At the base, the \texttt{flexhaz}
 package~\citep{towell2025flexhaz} provides a hazard-function-first
 abstraction for individual component lifetime distributions: each
@@ -1711,8 +1711,8 @@ composes components into series system distributions using hazard
 additivity (Theorem~\ref{thm:sys-hazard}), with a parameter layout
 that maps the global vector~$\btheta$ to component-specific
 subvectors~$\v{\theta}_j$.
-The \texttt{dfr.lik.series.md}
-package~\citep{towell2025dfrliksmd} implements the C1--C2--C3
+The \texttt{maskedhaz}
+package~\citep{towell2025maskedhaz} implements the C1--C2--C3
 log-likelihood (Theorem~\ref{thm:log-likelihood}) for all four
 observation types (exact, right-censored, left-censored, and
 interval-censored), taking arbitrary component hazard closures as
