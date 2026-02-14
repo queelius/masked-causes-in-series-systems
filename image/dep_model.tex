@@ -1,0 +1,57 @@
+% Dependency model for the data generating process.
+% Uses tikz-bayesnet: shaded = observed, open = latent.
+\begin{tikzpicture}[node distance=1.4cm]
+
+  % ── Row 0: Parameters and covariates ──────────────────────────
+  \node[const]                            (theta) {$\btheta$};
+  \node[obs, right=4.5cm of theta]        (x)     {$\v{x}_i$};
+
+  % ── Row 1: Component lifetimes (latent) ──────────────────────
+  \node[latent, below=1.5cm of theta]     (T1)  {$T_{i1}$};
+  \node[latent, right=of T1]              (T2)  {$T_{i2}$};
+  \node[right=0.55cm of T2]              (Td)  {$\cdots$};
+  \node[latent, right=0.55cm of Td]      (Tm)  {$T_{im}$};
+
+  % Plate (visual grouping for component lifetimes)
+  \plate[inner sep=8pt] {comp} {(T1)(T2)(Td)(Tm)} {};
+
+  % ── Row 2: System-level latent variables ─────────────────────
+  \node[latent, below=1.3cm of T2]        (Ti)  {$T_i$};
+  \node[latent, right=of Ti]              (Ki)  {$K_i$};
+
+  % ── Row 3: Observed quantities ───────────────────────────────
+  \node[obs, below left=1.1cm and 0.5cm of Ti]   (Si)    {$S_i$};
+  \node[obs, below right=1.1cm and 0.5cm of Ti]  (omega) {$\omega_i$};
+  \node[obs, below right=1.0cm and 0.8cm of Ki]  (Ci)    {$\mathcal{C}_i$};
+
+  % ── Solid edges (structural dependencies) ────────────────────
+
+  % Parameters → plate
+  \draw[->] (theta) -- (theta |- comp.north);
+
+  % Covariates → plate
+  \draw[->] (x) -- ([xshift=-3pt] comp.north east);
+
+  % Component lifetimes → system lifetime
+  \draw[->] (Ti |- comp.south) -- (Ti);
+
+  % Component lifetimes → cause of failure
+  \draw[->] (Ki |- comp.south) -- (Ki);
+
+  % System lifetime → observation
+  \edge {Ti} {Si,omega};
+
+  % Cause of failure → candidate set
+  \edge {Ki} {Ci};
+
+  % ── Dashed edges (ignorable under C1–C2–C3) ─────────────────
+  % With C_i placed to the lower-right, all three arrows into C_i
+  % converge from different directions without any crossings.
+
+  % x_i → candidate set: smooth curve from above-right
+  \draw[->,dashed] (x) to[out=-90, in=45] (Ci);
+
+  % Component lifetimes → candidate set (masking): from plate SE
+  \draw[->,dashed] (comp.south east) to[out=-30, in=150] (Ci);
+
+\end{tikzpicture}

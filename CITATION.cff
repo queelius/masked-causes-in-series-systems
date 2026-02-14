@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+type: article
+title: "Masked Causes of Failure in Series Systems: A Likelihood Framework"
+authors:
+  - family-names: Towell
+    given-names: Alexander
+    email: lex@metafunctor.com
+    orcid: "https://orcid.org/0000-0001-6443-9897"
+abstract: >-
+  We develop a distribution-agnostic likelihood framework for estimating
+  component reliability from series system data with masked failure causes.
+  Under three sufficient conditions on the masking mechanism (C1: candidate
+  set contains the true cause, C2: symmetric masking, C3: masking independent
+  of lifetime parameters), the unknown masking distribution is eliminated
+  from the likelihood. The resulting likelihood is expressed entirely in
+  terms of component hazard and reliability functions, covering exact,
+  right-censored, left-censored, and interval-censored observations. We
+  establish formal identifiability conditions based on the diagnostic
+  separability of candidate sets and provide instantiations for five common
+  parametric families.
+keywords:
+  - reliability
+  - series systems
+  - masked data
+  - maximum likelihood estimation
+  - competing risks
+  - hazard function
+  - identifiability
+  - censored data
+license: CC-BY-4.0
+date-released: "2025-02-13"
+repository-code: "https://github.com/queelius/masked-causes-in-series-systems"
