@@ -874,6 +874,24 @@ the hazard contributions with component-specific masking weights.
 The MLE then depends on the unknown masking probabilities, which must be
 jointly estimated or modeled.
 
+\begin{remark}[Information-theoretic characterization of C2]
+\label{rem:c2-entropy}
+Among all masking models satisfying C1 and C2 with fixed candidate set
+size~$w$, the \emph{uniform} masking model---where every candidate set
+of size~$w$ containing the failed component is equally likely---maximizes
+the conditional entropy $H(\mathcal{C} \mid K)$.
+Moreover, the mutual information $I(K; \mathcal{C}_w)$ between the
+failure cause and the candidate set decreases monotonically in~$w$,
+since the Markov chain $K \to \mathcal{C}_w \to \mathcal{C}_{w+1}$
+holds under uniform masking.
+This identifies uniform masking at $w = m-1$ as the
+\emph{maximally uninformative identifiable} specialization of C2,
+making it a natural worst-case benchmark.
+For the formal statement and proof, including the closed-form expression
+$I(K; \mathcal{C}_w) = \ln(m/w)$ under equal failure rates, see
+\citet{towell2025exponential-series}.
+\end{remark}
+
 \subsection{Condition 3: Masking Independent of \texorpdfstring{$\btheta$}{theta}}
 \label{sec:c3}
 
