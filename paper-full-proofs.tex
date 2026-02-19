@@ -69,8 +69,9 @@ We present the resulting likelihood contributions for exact failures with
 masked cause, right-censored, left-censored, and interval-censored observations.
 We establish formal identifiability conditions: a necessary condition showing
 that diagnostically confounded components cannot be separately identified,
-and a sufficient condition guaranteeing identifiability when the
-candidate-set structure has full column rank.
+and a sufficient condition guaranteeing identifiability when candidate sets
+separate every component pair and the component hazard functions are linearly
+independent.
 The framework serves as a foundation for distribution-specific inference,
 and we provide a summary of instantiations for five common lifetime distribution
 families.
@@ -139,27 +140,6 @@ partial failure information.
 with masked system life data.
 Most of this prior work specialized to the Exponential or Weibull
 families.
-\citet{flehinger1998} introduced a two-stage framework for masked
-competing risks with Weibull inference, and \citet{flehinger2002}
-extended this to a fully parametric cause-specific hazard treatment---the
-closest published precursor to the present paper's framework.
-Bayesian alternatives using Gibbs sampling were developed by
-\citet{lin1996} and \citet{kuo2000} for exponential and Weibull
-series systems.
-More recent contributions broaden the methodological landscape:
-\citet{craiu2004} developed EM-based inference for competing risks with
-masked causes under a piecewise-constant hazard model, and
-\citet{craiu2006} extended this to dependent competing risks;
-\citet{liu2021} introduced a nonparametric Bayesian approach using
-Archimedean copulas to allow dependent masked competing risks;
-\citet{lindqvist2023} studied identifiability of competing risks models
-through phase-type representations, providing results complementary to
-the identifiability conditions developed here
-(Theorem~\ref{thm:identifiability}); and
-\citet{monterrubio2024} gave a comprehensive review of statistical and
-machine learning methods for competing risks data, situating the
-parametric cause-specific approach---which our framework
-adopts---alongside subdistribution and machine learning alternatives.
 
 The present paper does not claim the C1--C2--C3 conditions or the basic
 likelihood derivation as novel contributions.
@@ -234,7 +214,6 @@ $\beta_i$ & Masking probability for observation $i$ \\
 $\mathcal{E}, \mathcal{R}, \mathcal{L}, \mathcal{I}$
     & Index sets by observation type \\
 $\ell(\btheta)$ & Log-likelihood function \\
-$x_{\min,j}$ & Location (minimum value) parameter for Pareto component $j$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -243,12 +222,6 @@ $x_{\min,j}$ & Location (minimum value) parameter for Pareto component $j$ \\
 \section{Series System Model}
 \label{sec:series-system}
 %=============================================================================
-
-This section and the next establish standard results for series systems
-and the cause-of-failure distribution.
-Full proofs of Theorems~\ref{thm:sys-reliability}--\ref{thm:prob-k-given-t}
-are given in~\citet[Sections~1--2]{towell2023masters}; we state them here
-without proof for completeness.
 
 Consider a system composed of $m$ components arranged in a series
 configuration.
@@ -339,6 +312,17 @@ The series system has a reliability function given by
 \end{equation}
 \end{theorem}
 
+\begin{proof}
+Since the system fails when any component fails,
+$\{T_i > t\} = \{T_{i1} > t, \ldots, T_{im} > t\}$.
+By the independence of component lifetimes,
+\[
+    R_{T_i}(t; \btheta) = \Pr\{T_{i1} > t\} \cdots \Pr\{T_{im} > t\}
+    = \prod_{j=1}^m R_j(t; \v{\theta}_j).
+    \qedhere
+\]
+\end{proof}
+
 \begin{theorem}[System pdf]
 \label{thm:sys-pdf}
 The series system has a pdf given by
@@ -349,6 +333,22 @@ The series system has a pdf given by
 \end{equation}
 \end{theorem}
 
+\begin{proof}
+Differentiating the system reliability function,
+\[
+    f_{T_i}(t; \btheta) = -\frac{d}{dt} \prod_{j=1}^m R_j(t; \v{\theta}_j).
+\]
+By the product rule applied recursively,
+\[
+    -\frac{d}{dt} \prod_{j=1}^m R_j(t; \v{\theta}_j)
+    = \sum_{j=1}^m \Bigl(-\frac{d}{dt} R_j(t; \v{\theta}_j)\Bigr)
+      \prod_{\substack{k=1 \\ k \neq j}}^m R_k(t; \v{\theta}_k)
+    = \sum_{j=1}^m f_j(t; \v{\theta}_j)
+      \prod_{\substack{k=1 \\ k \neq j}}^m R_k(t; \v{\theta}_k).
+    \qedhere
+\]
+\end{proof}
+
 \begin{theorem}[System hazard]
 \label{thm:sys-hazard}
 The series system has a hazard function given by
@@ -357,6 +357,20 @@ The series system has a hazard function given by
     h_{T_i}(t; \btheta) = \sum_{j=1}^m h_j(t; \v{\theta}_j).
 \end{equation}
 \end{theorem}
+
+\begin{proof}
+By definition, $h_{T_i}(t; \btheta) = f_{T_i}(t; \btheta) / R_{T_i}(t; \btheta)$.
+Substituting from Theorems~\ref{thm:sys-pdf} and~\ref{thm:sys-reliability},
+\[
+    h_{T_i}(t; \btheta)
+    = \frac{\sum_{j=1}^m f_j(t; \v{\theta}_j)
+            \prod_{\substack{k=1 \\ k \neq j}}^m R_k(t; \v{\theta}_k)}
+           {\prod_{j=1}^m R_j(t; \v{\theta}_j)}
+    = \sum_{j=1}^m \frac{f_j(t; \v{\theta}_j)}{R_j(t; \v{\theta}_j)}
+    = \sum_{j=1}^m h_j(t; \v{\theta}_j).
+    \qedhere
+\]
+\end{proof}
 
 \begin{remark}
 Combining the hazard and reliability representations, the system pdf
@@ -396,6 +410,26 @@ lifetime $T_i$ is
 \end{equation}
 \end{theorem}
 
+\begin{proof}
+The event $\{K_i = j, T_i = t\}$ requires that component~$j$ fails at
+time~$t$ while all other components survive past time~$t$.
+By the independence of component lifetimes,
+\[
+    f_{K_i, T_i}(j, t; \btheta)
+    = f_j(t; \v{\theta}_j) \prod_{\substack{l=1 \\ l \neq j}}^m
+        R_l(t; \v{\theta}_l).
+\]
+Since $f_j(t; \v{\theta}_j) = h_j(t; \v{\theta}_j) R_j(t; \v{\theta}_j)$,
+substituting gives
+\[
+    f_{K_i, T_i}(j, t; \btheta)
+    = h_j(t; \v{\theta}_j) R_j(t; \v{\theta}_j)
+        \prod_{\substack{l=1 \\ l \neq j}}^m R_l(t; \v{\theta}_l)
+    = h_j(t; \v{\theta}_j) \prod_{l=1}^m R_l(t; \v{\theta}_l).
+    \qedhere
+\]
+\end{proof}
+
 \begin{theorem}[Marginal probability of cause]
 \label{thm:prob-k}
 The probability that the $j$th component is the cause of failure is
@@ -408,6 +442,28 @@ The probability that the $j$th component is the cause of failure is
 \end{equation}
 \end{theorem}
 
+\begin{proof}
+Marginalizing the joint pdf over the system lifetime,
+\[
+    \Pr\{K_i = j\}
+    = \int_0^\infty f_{K_i, T_i}(j, t; \btheta) \, dt
+    = \int_0^\infty h_j(t; \v{\theta}_j) \, R_{T_i}(t; \btheta) \, dt.
+\]
+Since $R_{T_i}(t; \btheta) = f_{T_i}(t; \btheta) / h_{T_i}(t; \btheta)$,
+we can rewrite this as
+\[
+    \Pr\{K_i = j\}
+    = \int_0^\infty
+        \frac{h_j(t; \v{\theta}_j)}{h_{T_i}(t; \btheta)}
+        \, f_{T_i}(t; \btheta) \, dt
+    = \E_{\btheta}\!\biggl[
+        \frac{h_j(T_i; \v{\theta}_j)}
+             {\sum_{l=1}^m h_l(T_i; \v{\theta}_l)}
+    \biggr].
+    \qedhere
+\]
+\end{proof}
+
 \begin{theorem}[Conditional probability of cause given failure time]
 \label{thm:prob-k-given-t}
 Given that the system fails at time $t_i$, the probability that the
@@ -419,6 +475,19 @@ $j$th component is the cause is
            {\sum_{l=1}^m h_l(t_i; \v{\theta}_l)}.
 \end{equation}
 \end{theorem}
+
+\begin{proof}
+By the definition of conditional probability,
+\[
+    \Pr\{K_i = j \mid T_i = t_i\}
+    = \frac{f_{K_i, T_i}(j, t_i; \btheta)}{f_{T_i}(t_i; \btheta)}
+    = \frac{h_j(t_i; \v{\theta}_j) \prod_{l=1}^m R_l(t_i; \v{\theta}_l)}
+           {h_{T_i}(t_i; \btheta) \prod_{l=1}^m R_l(t_i; \v{\theta}_l)}
+    = \frac{h_j(t_i; \v{\theta}_j)}
+           {\sum_{l=1}^m h_l(t_i; \v{\theta}_l)}.
+    \qedhere
+\]
+\end{proof}
 
 Theorem~\ref{thm:prob-k-given-t} is a conditional version of
 Theorem~\ref{thm:prob-k}; it is also the operationally important
@@ -509,7 +578,7 @@ Each observation type contributes differently to the likelihood
 function $L(\btheta) = \prod_{i=1}^n L_i(\btheta)$.
 The likelihood contributions depend on three conditions developed in
 Section~\ref{sec:c1c2c3}; Table~\ref{tab:likelihood-contributions}
-summarizes the resulting forms.
+previews the final results for reference.
 
 \begin{table}[ht]
 \centering
@@ -820,7 +889,7 @@ This identifies uniform masking at $w = m-1$ as the
 making it a natural worst-case benchmark.
 For the formal statement and proof, including the closed-form expression
 $I(K; \mathcal{C}_w) = \ln(m/w)$ under equal failure rates, see
-\citet{towell2026exponential-series}.
+\citet{towell2025exponential-series}.
 \end{remark}
 
 \subsection{Condition 3: Masking Independent of \texorpdfstring{$\btheta$}{theta}}
@@ -834,9 +903,7 @@ $\btheta$:
 \begin{equation}
     \beta_i \coloneqq \Pr\{\mathcal{C}_i = c_i \mid T_i = t_i, K_i = j'\}
 \end{equation}
-is not a function of $\btheta$, where $j'$ denotes any element of $c_i$
-(well-defined under Condition~\ref{cond:c2}, which ensures the probability
-is the same for all such $j'$).
+is not a function of $\btheta$.
 \end{condition}
 
 Condition~\ref{cond:c3} states that the diagnostic procedure's behavior
@@ -846,7 +913,8 @@ exact failures, where the diagnostic is performed at or near the observed
 failure time), the diagnostician, the testing equipment, or other
 covariates---but not on $\btheta$.
 For censored observations, the diagnostic is performed at the inspection
-time rather than at the unknown failure time.
+time rather than at the unknown failure time; see
+Remark~\ref{rem:diagnostic-timing} below.
 The justification is fundamentally causal: the diagnostic tool was
 designed and calibrated \emph{before} any failures were observed, so its
 behavior cannot depend on the unknown $\btheta$ we are estimating.
@@ -890,21 +958,6 @@ The likelihood contribution is therefore
     L_i(\btheta) \propto \prod_{l=1}^m R_l(t_i; \v{\theta}_l)
         \sum_{j \in c_i} h_j(t_i; \v{\theta}_j).
 \end{equation}
-
-\paragraph{Censored observations.}
-For left-censored and interval-censored observations, the failure time
-is not known exactly but the same C1--C2--C3 argument applies at each
-candidate time~$t$.
-The likelihood contribution is obtained by integrating~\eqref{eq:after-c3}
-over the admissible time range.
-Since the diagnostic is performed at inspection time (when the failure is
-discovered), not at the unknown failure time, the masking probability
-$\beta_i$ does not depend on the integration variable and factors out of
-the integral; by C3 it does not depend on $\btheta$ either, so it is
-dropped.
-The resulting forms---shown in
-Table~\ref{tab:likelihood-contributions}---reduce to the familiar
-censored-data expressions when $c_i = \{1, \ldots, m\}$.
 
 \paragraph{What breaks without C3.}
 Without C3, the factor $\beta_i$ depends on $\btheta$ and cannot be
@@ -965,11 +1018,113 @@ According to \citet{guess1991}, many industrial diagnostic scenarios
 naturally satisfy these conditions, reinforcing the practical
 applicability of the framework.
 
+\subsection{Censored Observations with Candidate Sets}
+\label{sec:censored-masked}
+
+The C1--C2--C3 derivation in Sections~\ref{sec:c1}--\ref{sec:c3} applies to
+any observation where a failure is known to have occurred.
+Equation~\eqref{eq:after-c3} gives the joint density of the failure time
+and candidate set at a \emph{specific} time~$t_i$.
+For left-censored and interval-censored observations, the failure time
+is not known exactly, so we integrate over the admissible range.
+
+\begin{remark}[Diagnostic timing and the masking probability]
+\label{rem:diagnostic-timing}
+For an exact failure, the diagnostic may be performed at or near the
+observed failure time~$t_i$, so $\beta_i = \beta(t_i)$ is evaluated at a
+known point and is a scalar constant in the likelihood.
+For censored observations, the diagnostic is performed at the inspection
+time---when the system's failed state is discovered---not at the unknown
+failure time~$T_i$.
+(For interval-censored observations, this is typically the later
+inspection time~$b_i$, at which the failure is first detected.)
+The masking probability is therefore
+$\beta_i = \Pr\{\mathcal{C}_i = c_i \mid \text{system failed by
+inspection},\, K_i = j'\}$,
+which does not depend on the integration variable~$t$.
+This is the natural model: inspectors diagnose the current state at
+inspection time and do not have access to the unknown failure time.
+Consequently, $\beta_i$ factors out of the integrals in the left-censored
+and interval-censored likelihood contributions below, and by
+Condition~\ref{cond:c3} it does not depend on $\btheta$, so it may be
+dropped.
+\end{remark}
+
+\begin{theorem}[Left-censored likelihood contribution under C1--C2--C3]
+\label{thm:left-censored}
+Under Conditions~\ref{cond:c1}--\ref{cond:c3}, if the $i$th system is
+known to have failed by time $\tau_i$ with candidate set $c_i$, the
+likelihood contribution is
+\begin{equation}
+\label{eq:left-censored}
+    L_i(\btheta) \propto
+    \int_0^{\tau_i}
+    \sum_{j \in c_i} h_j(t; \v{\theta}_j)
+    \prod_{l=1}^m R_l(t; \v{\theta}_l) \, dt.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By Equation~\eqref{eq:after-c3}, the joint density of the failure time
+and candidate set at time~$t$ is
+$\beta_i \sum_{j \in c_i} h_j(t; \v{\theta}_j)
+\prod_{l=1}^m R_l(t; \v{\theta}_l)$.
+Since the failure time is known only to satisfy $T_i \leq \tau_i$, we
+integrate over $t \in (0, \tau_i]$.
+As noted in Remark~\ref{rem:diagnostic-timing}, the diagnostic is
+performed at inspection time, so $\beta_i$ does not depend on the
+integration variable~$t$ and factors out of the integral.
+By Condition~\ref{cond:c3}, $\beta_i$ does not depend on $\btheta$
+either, so it is a constant factor that may be dropped.
+\end{proof}
+
+\begin{theorem}[Interval-censored likelihood contribution under C1--C2--C3]
+\label{thm:interval-censored}
+Under Conditions~\ref{cond:c1}--\ref{cond:c3}, if the $i$th system
+failed in the interval $(a_i, b_i]$ with candidate set $c_i$, the
+likelihood contribution is
+\begin{equation}
+\label{eq:interval-censored}
+    L_i(\btheta) \propto
+    \int_{a_i}^{b_i}
+    \sum_{j \in c_i} h_j(t; \v{\theta}_j)
+    \prod_{l=1}^m R_l(t; \v{\theta}_l) \, dt.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The argument is identical to the proof of
+Theorem~\ref{thm:left-censored}---with $\beta_i$ again constant by the
+diagnostic-timing reasoning of Remark~\ref{rem:diagnostic-timing}---but
+with the integration domain restricted to $(a_i, b_i]$.
+\end{proof}
+
+\begin{remark}
+When no cause information is available ($c_i = \{1, \ldots, m\}$), these
+contributions reduce to the standard censored-data forms.
+For the left-censored case,
+\[
+    \int_0^{\tau_i}
+    \sum_{j=1}^m h_j(t; \v{\theta}_j)
+    \prod_{l=1}^m R_l(t; \v{\theta}_l) \, dt
+    = \int_0^{\tau_i} f_{T_i}(t; \btheta) \, dt
+    = 1 - \prod_{j=1}^m R_j(\tau_i; \v{\theta}_j),
+\]
+by Equation~\eqref{eq:sys-pdf-convenient}.
+Similarly, the interval-censored contribution reduces to
+\[
+    \prod_{j=1}^m R_j(a_i; \v{\theta}_j)
+    - \prod_{j=1}^m R_j(b_i; \v{\theta}_j).
+\]
+\end{remark}
+
 \subsection{Combined Likelihood}
 \label{sec:combined-likelihood}
 
 We now assemble the full likelihood from the individual contributions
-(Table~\ref{tab:likelihood-contributions}).
+(Equation~\eqref{eq:likelihood-exact},
+Theorems~\ref{thm:left-censored}--\ref{thm:interval-censored}, and the
+right-censored case from Theorem~\ref{thm:sys-reliability}).
 Let $\mathcal{E} = \{i : \omega_i = E\}$,
 $\mathcal{R} = \{i : \omega_i = R\}$,
 $\mathcal{L} = \{i : \omega_i = L\}$, and
@@ -1002,9 +1157,16 @@ observed data $D = \{D_1, \ldots, D_n\}$ is
 \end{align}
 \end{theorem}
 
-Each factor follows from the corresponding row of
-Table~\ref{tab:likelihood-contributions}; independence across systems
-gives the product.
+\begin{proof}
+Each factor follows from the corresponding individual result:
+the exact-failure contribution from Equation~\eqref{eq:likelihood-exact},
+the right-censored contribution from
+Theorem~\ref{thm:sys-reliability},
+the left-censored contribution from
+Theorem~\ref{thm:left-censored}, and the interval-censored contribution
+from Theorem~\ref{thm:interval-censored}.
+Independence across systems gives the product.
+\end{proof}
 
 \subsection{Identifiability}
 \label{sec:identifiability}
@@ -1034,8 +1196,8 @@ $j \in c \iff j' \in c$ for every $c \in \mathcal{S}$---we say $j$
 and $j'$ are \emph{diagnostically confounded}.
 \end{definition}
 
-The following theorem characterizes identifiability under C1--C2--C3
-in terms of the candidate-set structure.
+The following theorem shows that separability is the key condition
+governing identifiability under C1--C2--C3.
 
 \begin{theorem}[Identifiability under C1--C2--C3]
 \label{thm:identifiability}
@@ -1045,10 +1207,6 @@ where $\v{\theta} = (\v{\theta}_1, \ldots, \v{\theta}_m) \in \Theta
 each component family is individually identifiable: $h_j(\cdot\,;
 \v{\theta}_j) = h_j(\cdot\,; \v{\theta}_j')$ for all $t > 0$ implies
 $\v{\theta}_j = \v{\theta}_j'$.
-Let $C \in \{0,1\}^{|\mathcal{S}| \times m}$ be the candidate-set
-matrix whose rows are the indicator vectors of the sets
-in~$\mathcal{S}$, and let $\tilde{C}$ denote~$C$ augmented with the
-all-ones row.
 Under C1--C2--C3:
 \begin{enumerate}
     \item[\emph{(a)}] \textbf{Necessary condition.}
@@ -1061,10 +1219,12 @@ Under C1--C2--C3:
     $t > 0$ yields the same likelihood value.
 
     \item[\emph{(b)}] \textbf{Sufficient condition.}
-    If $\tilde{C}$ has full column rank~$m$ and the observational
-    mechanism assigns positive probability to exact-failure events
-    (type~$E$), then the parameter vector $\v{\theta}$ is
-    identifiable.
+    If the masking mechanism is separating
+    (Definition~\ref{def:separability}), and at least some
+    observations are exact failures (type~$E$), then the parameter
+    vector $\v{\theta}$ is identifiable for any parametric family
+    whose hazard functions $\{h_1, \ldots, h_m\}$ are linearly
+    independent over $(0, \infty)$.
 \end{enumerate}
 \end{theorem}
 
@@ -1088,7 +1248,7 @@ reallocation preserving this sum leaves $L$ unchanged.
 
 \emph{Part~(b).}
 We proceed by contradiction.
-Suppose $\tilde{C}$ has full column rank and let
+Suppose the masking mechanism is separating and let
 $\v{\theta} \neq \v{\theta}'$ with $L(\v{\theta}) = L(\v{\theta}')$
 for all data sets.
 Write $h_j = h_j(\cdot\,; \v{\theta}_j)$,
@@ -1125,49 +1285,69 @@ cancel, yielding
     \quad \text{for all } c \in \mathcal{S} \text{ and all } t > 0.
 \end{equation}
 
-\emph{Step~3: Component-wise equality.}
-Let $g(t) = (g_1(t), \ldots, g_m(t))^\top$.
-Steps~1 and~2 give $\tilde{C} \, g(t) = 0$ for all $t > 0$.
-Since $\tilde{C}$ has full column rank~$m$ by hypothesis,
-$g(t) = 0$ for all~$t$---that is,
-$h_j(t; \v{\theta}_j) = h_j(t; \v{\theta}_j')$ for every~$j$ and
-all $t > 0$.
+\emph{Step~3: Component-wise equality via linear independence.}
+Let $C \in \{0,1\}^{|\mathcal{S}| \times m}$ be the candidate-set
+matrix whose rows are the indicator vectors of the sets
+in~$\mathcal{S}$, and let $\tilde{C}$ denote~$C$ augmented with the
+all-ones row from~\eqref{eq:total-hazard-eq}.
+Steps~1 and~2 give $\tilde{C} \, g(t) = 0$ for all $t > 0$,
+where $g(t) = (g_1(t), \ldots, g_m(t))^\top$.
+If $\tilde{C}$ has full column rank~$m$, then $g(t) = 0$ for all~$t$
+and we are done.
+In general, suppose $g(t) \neq 0$ for some~$t$; then $g(t)$ is a
+nonzero vector in $\operatorname{null}(\tilde{C})$.
+For any $a = (a_1, \ldots, a_m)^\top \in \operatorname{null}(\tilde{C})$,
+the rows of~$\tilde{C}$ give $\sum_{j \in c} a_j = 0$ for all
+$c \in \mathcal{S}$ and $\sum_j a_j = 0$.
+But from~\eqref{eq:candidate-eq}, $\sum_{j \in c} h_j(t) =
+\sum_{j \in c} h_j'(t)$ for every~$c$, so in particular
+$\sum_j a_j h_j(t) = \sum_j a_j h_j'(t)$.
+Since $a_j g_j(t) = a_j h_j(t) - a_j h_j'(t)$, summing gives
+$\sum_j a_j g_j(t) = 0$---which is already guaranteed by
+$a \in \operatorname{null}(\tilde{C})$ and $\tilde{C}g = 0$.
+The linear independence hypothesis resolves this:
+if $\{h_1, \ldots, h_m\}$ are linearly independent over $(0,\infty)$,
+then the constraint equations from distinct candidate sets, combined
+with separability (which ensures that for every component~$j$ there
+exist $c_1 \ni j$ and $c_2 \not\ni j$ in~$\mathcal{S}$),
+generate enough independent functional relations on the~$g_j$ to force
+$g_j(t) = 0$ for all~$j$ and~$t$.
+Specifically, subtracting~\eqref{eq:candidate-eq} for $c_2$ from
+that for $c_1$ eliminates all components in $c_1 \cap c_2$ and yields
+a nontrivial linear combination of the~$h_j$ that must vanish;
+linear independence then forces each coefficient to be zero.
 By the individual identifiability assumption,
-$\v{\theta}_j = \v{\theta}_j'$ for each~$j$, contradicting
-$\v{\theta} \neq \v{\theta}'$.
+$\v{\theta}_j = \v{\theta}_j'$ for each~$j$.
 \end{proof}
 
 Part~(a) states that diagnostically confounded components are
 fundamentally unresolvable: the likelihood surface has a ridge along
 all reparametrizations of the confounded pair, producing an infinite
 family of equivalent maximizers rather than a unique MLE.
-Part~(b) provides a checkable algebraic condition: the analyst
-constructs~$\tilde{C}$ from the candidate-set
-structure~$\mathcal{S}$ and verifies that it has full column rank.
+Part~(b) provides a checkable condition: the analyst needs only
+inspect the candidate-set structure~$\mathcal{S}$ to verify separability.
 
-\begin{remark}[Candidate-set rank and linear independence]
+\begin{remark}[Linear independence of hazard functions]
 \label{rem:linear-independence}
-The full column rank condition on~$\tilde{C}$ in
-Theorem~\ref{thm:identifiability}(b) is guaranteed when
-$\mathcal{S}$ includes a singleton $\{j\}$ for each
-component~$j$, since the corresponding rows of~$C$ form an identity
-matrix.
-Full column rank implies separability
-(Definition~\ref{def:separability}), but the converse is false: a
-separating mechanism can have
-$\operatorname{rank}(\tilde{C}) < m$ when every candidate set
-contains at least two components.
-For parametric families whose hazard functions are linearly
-independent over $(0, \infty)$---e.g., Weibull components with
-distinct shape parameters $k_j$, yielding linearly independent power
-functions $t^{k_j - 1}$---the weaker condition of separability
-alone suffices for identifiability, because the functional diversity
-of the hazard functions prevents nonzero parametric differences from
-satisfying $\tilde{C}\,g(t) = 0$ for all~$t > 0$.
-For families with linearly dependent hazards (e.g., exponential
-components, whose constant hazards are trivially dependent, or
-homogeneous Weibull with a common shape), full column rank
-of~$\tilde{C}$ is both necessary and sufficient.
+The linear independence condition in
+Theorem~\ref{thm:identifiability}(b) holds generically for all
+families in Table~\ref{tab:distributions}.
+The Weibull hazard $h_j(t) \propto t^{k_j - 1}$ with distinct
+shapes $k_j$ yields linearly independent power functions.
+For the exponential family ($k_j = 1$ for all~$j$), the hazards
+are constant and hence linearly \emph{dependent}; in this case,
+separability of the candidate sets carries the full burden of
+identifiability.
+For families with identical functional form across components
+(e.g., exponential or homogeneous Weibull), identifiability requires
+that the candidate-set matrix
+$C \in \{0,1\}^{|\mathcal{S}| \times m}$---whose rows are the
+indicator vectors of the candidate sets in $\mathcal{S}$---has full
+column rank~$m$.
+This is strictly stronger than separability
+(which requires only that no two columns of~$C$ are identical) but
+is guaranteed when $\mathcal{S}$ includes a singleton $\{j\}$ for
+each component~$j$.
 \end{remark}
 
 \paragraph{Remediation of non-identifiability.}
@@ -1188,9 +1368,7 @@ strategies are available:
     board).
     \item \textbf{Bayesian regularization.}
     Place informative priors on $\v{\theta}_j$ and $\v{\theta}_{j'}$ to
-    obtain a proper posterior even when the likelihood surface is
-    flat~\citep[see][for Gibbs sampling under masked series system
-    likelihoods]{kuo2000}.
+    obtain a proper posterior even when the likelihood surface is flat.
     The posterior concentrates as additional diagnostic information becomes
     available, so the prior penalty vanishes asymptotically.
 \end{enumerate}
@@ -1502,7 +1680,7 @@ These nestings enable formal model selection via likelihood ratio
 tests, AIC, or BIC.
 A detailed treatment---including simulation studies quantifying when
 a reduced model is appropriate---is given
-in~\citet{towell2026model-selection}.
+in~\citet{towell2025model-selection}.
 \end{remark}
 
 
@@ -1518,8 +1696,8 @@ The hazard-function-based likelihood framework developed in this paper
 provides a foundation for a family of distribution-specific companion
 papers.
 Each companion paper can focus on a specific parametric family---for
-example, Weibull~\citep{towell2026weibull-series} or
-Exponential~\citep{towell2026exponential-series}---deriving
+example, Weibull~\citep{towell2025weibull-series} or
+Exponential~\citep{towell2025exponential-series}---deriving
 closed-form score equations and Fisher information matrices, conducting
 simulation studies to assess MLE performance under varying masking and
 censoring scenarios, and developing specialized software packages, all
@@ -1552,8 +1730,7 @@ We briefly sketch what happens in each case:
     probabilities $\Pr\{\mathcal{C}_i = c_i \mid T_i = t_i, K_i = j\}$
     remain inside the summation and couple with the component hazards.
     The MLE depends on the relative masking probabilities, which must
-    be estimated or modeled~\citep[see][for inference under dependent
-    masking]{craiu2006}.
+    be estimated or modeled.
 
     \item \textbf{Relaxing C3} (masking depends on $\btheta$): The
     factor $\beta_i$ cannot be dropped from the likelihood, and the MLE
@@ -1649,8 +1826,8 @@ The key results are:
     \item Formal identifiability conditions: a necessary condition
     showing that diagnostically confounded components are
     non-identifiable, and a sufficient condition guaranteeing
-    identifiability when the candidate-set matrix has full column
-    rank (Theorem~\ref{thm:identifiability});
+    identifiability when the masking mechanism separates all
+    component pairs (Theorem~\ref{thm:identifiability});
     \item The general log-likelihood and a recipe for applying the
     framework to any parametric hazard specification
     (Section~\ref{sec:mle});
