@@ -1,0 +1,16 @@
+% Generic m-component series system diagram
+\begin{tikzpicture}[
+  comp/.style={draw, rectangle, minimum width=1.2cm, minimum height=0.7cm},
+  >=stealth, thick
+]
+  \node[comp] (c1) {$1$};
+  \node[comp, right=0.6cm of c1] (c2) {$2$};
+  \node[right=0.4cm of c2] (dots) {$\cdots$};
+  \node[comp, right=0.4cm of dots] (cm) {$m$};
+
+  \draw[->] (c1.west) ++(-0.8cm,0) -- (c1.west);
+  \draw[->] (c1.east) -- (c2.west);
+  \draw[->] (c2.east) -- (dots.west);
+  \draw[->] (dots.east) -- (cm.west);
+  \draw[->] (cm.east) -- ++(0.8cm,0);
+\end{tikzpicture}

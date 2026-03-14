@@ -8,7 +8,7 @@
 
 We develop a distribution-agnostic likelihood framework for estimating component reliability from series system data when the component cause of failure is masked. Three sufficient conditions on the masking mechanism (C1--C2--C3) allow the unknown masking distribution to be eliminated from the likelihood, yielding likelihood contributions expressed entirely in terms of component hazard and reliability functions. The framework covers exact failures with masked cause, right-censored, left-censored, and interval-censored observations.
 
-A key result is a **formal identifiability theorem** that characterizes precisely when component parameters can be recovered from masked data: a *necessary* condition shows that diagnostically confounded components are non-identifiable, and a *sufficient* condition guarantees identifiability when candidate sets separate every component pair and component hazard functions are linearly independent.
+A key result is a **formal identifiability theorem** that characterizes precisely when component parameters can be recovered from masked data: a *necessary* condition shows that diagnostically confounded components are non-identifiable, and a *sufficient* condition guarantees identifiability when the candidate-set structure has full column rank.
 
 We provide instantiations for five common parametric families (Exponential, Weibull, Pareto, Log-normal, Gamma).
 
@@ -20,7 +20,9 @@ We provide instantiations for five common parametric families (Exponential, Weib
 | **Theorems 4--6** | Joint, marginal, and conditional distributions of component cause of failure |
 | **Theorem 7** | Likelihood contribution under C1--C2--C3 for all four observation types |
 | **Theorem 8 (Identifiability)** | Necessary and sufficient conditions for parameter recovery under masking |
-| **Table 2** | Hazard specifications for five parametric families |
+| **Theorem 9 (Partial identifiability)** | Graph-theoretic characterization via confounding graph and super-components |
+| **Theorem 10 (Log-likelihood)** | Log-likelihood decomposition for all four observation types |
+| **Table 4** | Hazard specifications for five parametric families |
 | **Section 6** | General MLE recipe: log-likelihood, score equations, practitioner workflow |
 
 ## Building
@@ -64,10 +66,10 @@ maskedcauses     High-level interface: data generation, observation schemes, fit
 ## Citation
 
 ```bibtex
-@article{towell2025masked,
+@article{towell2026masked,
   author  = {Towell, Alexander},
   title   = {Masked Causes of Failure in Series Systems: A Likelihood Framework},
-  year    = {2025},
+  year    = {2026},
   url     = {https://github.com/queelius/masked-causes-in-series-systems}
 }
 ```

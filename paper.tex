@@ -3,10 +3,10 @@
 % Packages
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsthm,mathtools}
-\usepackage{hyperref}
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{natbib}
+\usepackage{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{fit,backgrounds,bayesnet,positioning,arrows.meta,calc}
 \usepackage{caption}
@@ -138,7 +138,9 @@ partial failure information.
 \citet{Amma-2001} extended reliability estimation to broader settings
 with masked system life data.
 Most of this prior work specialized to the Exponential or Weibull
-families.
+families, though \citet{mukhopadhyay2006} gave a general MLE treatment
+that drops the symmetry assumption and jointly estimates masking
+probabilities.
 \citet{flehinger1998} introduced a two-stage framework for masked
 competing risks with Weibull inference, and \citet{flehinger2002}
 extended this to a fully parametric cause-specific hazard treatment---the
@@ -161,17 +163,20 @@ machine learning methods for competing risks data, situating the
 parametric cause-specific approach---which our framework
 adopts---alongside subdistribution and machine learning alternatives.
 
-The present paper does not claim the C1--C2--C3 conditions or the basic
-likelihood derivation as novel contributions.
-Rather, its role is to serve as a \emph{foundational reference} that
-provides a unified treatment of the framework
-in a single self-contained document.
-The value lies in the unified presentation, the extension of the
-likelihood to all four censoring types (exact, right, left, and
-interval), formal identifiability results that characterize precisely
-when component parameters can be recovered from masked data
-(Theorem~\ref{thm:identifiability}), and the five-family
-instantiation table (Section~\ref{sec:families}).
+The C1--C2--C3 conditions and the basic likelihood derivation
+originate in the work of \citet{miyakawa1984} and
+\citet{Usher-1988}.
+The present paper makes three contributions beyond the classical
+results:
+\emph{(i)}~a formal identifiability theory characterizing precisely when
+component parameters can be recovered from masked data, including a
+graph-theoretic partial identifiability framework
+(Theorems~\ref{thm:identifiability}--\ref{thm:partial-identifiability});
+\emph{(ii)}~a unified likelihood treatment covering all four censoring
+types (exact, right, left, and interval); and
+\emph{(iii)}~a distribution-agnostic formulation in terms of component
+hazard functions that serves as a foundational reference for
+family-specific companion papers (Section~\ref{sec:families}).
 Companion papers and software packages can cite this work for the
 general theory while focusing on distribution-specific derivations
 and simulation studies.
@@ -234,6 +239,8 @@ $\beta_i$ & Masking probability for observation $i$ \\
 $\mathcal{E}, \mathcal{R}, \mathcal{L}, \mathcal{I}$
     & Index sets by observation type \\
 $\ell(\btheta)$ & Log-likelihood function \\
+$H_j(t; \v{\theta}_j)$ & Cumulative hazard function of component $j$ \\
+$C$, $\tilde{C}$ & Candidate-set matrix; $C$ augmented with all-ones row \\
 $x_{\min,j}$ & Location (minimum value) parameter for Pareto component $j$ \\
 \bottomrule
 \end{tabular}
@@ -251,7 +258,17 @@ are given in~\citet[Sections~1--2]{towell2023masters}; we state them here
 without proof for completeness.
 
 Consider a system composed of $m$ components arranged in a series
-configuration.
+configuration (Figure~\ref{fig:series}): the system functions if and only
+if every component functions.
+
+\begin{figure}[ht]
+\centering
+\input{image/series_generic.tex}
+\caption{A series system of $m$ components.
+The system fails when any single component fails.}
+\label{fig:series}
+\end{figure}
+
 Each component and system has two possible states: functioning or failed.
 We assume throughout that all component lifetime distributions are
 absolutely continuous with respect to Lebesgue measure (i.e., each
@@ -499,6 +516,8 @@ $D_i = (s_i, \omega_i, c_i, \v{x}_i)$, where:
     (possibly empty when no covariates are recorded).
 \end{itemize}
 
+We use uppercase ($S_i$, $\mathcal{C}_i$) for random variables and
+lowercase ($s_i$, $c_i$) for their observed realizations.
 The complete data set is $D = \{D_1, \ldots, D_n\}$, assumed to be
 independent draws from the observational model.
 
@@ -899,9 +918,12 @@ The likelihood contribution is obtained by integrating~\eqref{eq:after-c3}
 over the admissible time range.
 Since the diagnostic is performed at inspection time (when the failure is
 discovered), not at the unknown failure time, the masking probability
-$\beta_i$ does not depend on the integration variable and factors out of
-the integral; by C3 it does not depend on $\btheta$ either, so it is
-dropped.
+$\beta_i$ does not depend on the integration variable~$t$ and factors out
+of the integral.
+This step uses the additional assumption that the diagnostic outcome
+depends on the inspection time rather than the unknown failure time, so
+that $\beta_i$ is constant with respect to~$t$.
+By C3 it does not depend on $\btheta$ either, so it is dropped.
 The resulting forms---shown in
 Table~\ref{tab:likelihood-contributions}---reduce to the familiar
 censored-data expressions when $c_i = \{1, \ldots, m\}$.
@@ -1014,7 +1036,17 @@ classical competing risks result of \citet{tsiatis1975}: without the
 component independence assumption (Remark~\ref{rem:independence}),
 the marginal component lifetime distributions are not identifiable from
 system lifetime data alone---even with complete observation of the
-failure cause.
+failure cause~\citep[see also][for textbook treatments]{crowder2001}.
+\citet{heckman1989} showed that introducing regressors can restore
+identifiability without parametric assumptions; our framework takes the
+complementary parametric route.
+In the autopsy model (where the exact failure cause is observed),
+\citet{meilijson1981} proved that identifiability depends on the rank of
+the incidence matrix of minimal fatal sets.
+Our candidate-set matrix~$\tilde{C}$
+(Theorem~\ref{thm:identifiability}) plays an analogous role in the
+masked-data setting, where the diagnostic produces a candidate set
+rather than an exact cause.
 Our framework inherits identifiability from the independence assumption,
 which allows the system reliability to factor as a product of component
 reliabilities (Theorem~\ref{thm:sys-reliability}).
@@ -1062,18 +1094,24 @@ Under C1--C2--C3:
 
     \item[\emph{(b)}] \textbf{Sufficient condition.}
     If $\tilde{C}$ has full column rank~$m$ and the observational
-    mechanism assigns positive probability to exact-failure events
-    (type~$E$), then the parameter vector $\v{\theta}$ is
-    identifiable.
+    mechanism assigns positive probability to both exact-failure
+    events (type~$E$) and right-censored events (type~$R$),
+    then the parameter vector $\v{\theta}$ is identifiable.
 \end{enumerate}
 \end{theorem}
 
 \begin{proof}
+Recall that $\v{\theta}$ is \emph{identifiable} if
+$L(\v{\theta}) = L(\v{\theta}')$ for all possible data sets
+implies $\v{\theta} = \v{\theta}'$; equivalently, non-identifiability
+means two distinct parameter values yield the same likelihood for every
+data realization.
+
 \emph{Part~(a).}
 Suppose $j \in c \iff j' \in c$ for every $c \in \mathcal{S}$.
 Then in every exact-failure likelihood contribution
 $R(t_i) \sum_{l \in c_i} h_l(t_i)$
-(Equation~\ref{eq:likelihood-exact}),
+(\eqref{eq:likelihood-exact}),
 the hazards $h_j$ and $h_{j'}$ appear as a sum
 $h_j(t_i) + h_{j'}(t_i)$ wherever they appear at all.
 The survival factor
@@ -1196,8 +1234,8 @@ the equivalence classes of this relation.
 \begin{definition}[Super-component]
 \label{def:super-component}
 A \emph{super-component} is a connected component of~$G$.
-Let $\mathcal{P} = \{P_1, \ldots, P_q\}$ denote the partition of
-$\{1, \ldots, m\}$ into super-components.
+Let $\mathcal{P} = \{P_1, \ldots, P_q\}$ be the partition
+of $\{1, \ldots, m\}$ into super-components.
 For each super-component~$P_k$, the \emph{aggregate hazard} is
 \begin{equation}
     h_{P_k}(t; \v{\theta}) = \sum_{j \in P_k} h_j(t; \v{\theta}_j).
@@ -1206,24 +1244,27 @@ For each super-component~$P_k$, the \emph{aggregate hazard} is
 
 \begin{theorem}[Partial identifiability]
 \label{thm:partial-identifiability}
+\begin{sloppypar}%
 Under C1--C2--C3, with each component family individually
 identifiable:
 \begin{enumerate}
-    \item[\emph{(a)}] The aggregate hazard $h_{P_k}$ is identifiable
-    for each super-component~$P_k$ if and only if the augmented
-    candidate-set matrix, reduced to one column per super-component
-    (where the column for~$P_k$ is the common column shared by all
-    $j \in P_k$), has full column rank~$q$.
+    \item[\emph{(a)}] The aggregate hazard $h_{P_k}$
+    is identifiable for each super-component~$P_k$ if the
+    augmented candidate-set matrix---reduced to one column per
+    super-component (the common column shared by all
+    $j \in P_k$)---has full column rank~$q$.
     \item[\emph{(b)}] The individual parameter vectors
     $\v{\theta}_j$ for $j \in P_k$ with $|P_k| \geq 2$ are not
     separately identifiable from the observed-data likelihood.
     The likelihood depends on these parameters only through
     $h_{P_k}$.
-    \item[\emph{(c)}] The number of identifiable super-component
+    \item[\emph{(c)}] When components within each super-component
+    share the same parametric structure (e.g., common shape in a
+    Weibull model), the number of identifiable super-component
     parameters is at most $q \cdot d$, where $d$ is the dimension of
-    each component's parameter vector (assuming a common parametric
-    family).
-\end{enumerate}
+    the shared parameter vector.
+\end{enumerate}%
+\end{sloppypar}
 \end{theorem}
 
 \begin{proof}
@@ -1311,7 +1352,7 @@ identifiability.}
 \label{fig:confounding-graph}
 \end{figure}
 
-\paragraph{Remediation of non-identifiability.}
+\paragraph{Remediation.}
 When the confounding graph has non-trivial super-components
 ($|P_k| \geq 2$), three strategies are available:
 \begin{enumerate}
@@ -1562,7 +1603,9 @@ named families below are common starting points.
 \caption{Common hazard function specifications.
 The hazard function $h_j$ is the primary specification; the reliability
 function $R_j$ and density $f_j$ are derived via
-Equations~\eqref{eq:rel-from-haz}--\eqref{eq:pdf-from-haz}.}
+Equations~\eqref{eq:rel-from-haz}--\eqref{eq:pdf-from-haz}.
+$^*$The Gamma hazard has no elementary closed form and is expressed
+via its definition $h_j = f_j / R_j$.}
 \label{tab:distributions}
 \footnotesize
 \renewcommand{\arraystretch}{1.6}
@@ -1594,7 +1637,7 @@ Log-normal
     & $\dfrac{1}{\sigma_j t}\,
         \phi\!\Bigl(\dfrac{\log t - \mu_j}{\sigma_j}\Bigr)$
     & $\mu_j \in \mathbb{R}$, $\sigma_j > 0$ \\
-Gamma\footnotemark
+Gamma$^*$
     & $\dfrac{f_j(t; \v{\theta}_j)}{R_j(t; \v{\theta}_j)}$
     & $1 - \dfrac{\gamma(\alpha_j, \beta_j t)}{\Gamma(\alpha_j)}$
     & $\dfrac{\beta_j^{\alpha_j}}{\Gamma(\alpha_j)} \,
@@ -1603,17 +1646,16 @@ Gamma\footnotemark
 \bottomrule
 \end{tabular}
 \end{table}
-\footnotetext{The Gamma hazard function has no elementary closed form;
-it is expressed here via its definition $h_j = f_j / R_j$.}
 
 In Table~\ref{tab:distributions}, $\Phi(\cdot)$ and $\phi(\cdot)$ denote
 the standard normal CDF and pdf, respectively; $\gamma(\cdot, \cdot)$ is the
 lower incomplete gamma function; and $\Gamma(\cdot)$ is the gamma function.
 For distributions with parameter-dependent support (e.g., the Pareto
-distribution with $t \geq x_{\min,j}$), the system support is
-$t \geq \max_j x_{\min,j}$, and the product formula for system reliability
-(Theorem~\ref{thm:sys-reliability}) must be applied only on this common
-support.
+distribution with $t \geq x_{\min,j}$), component~$j$ cannot fail
+before~$x_{\min,j}$: set $R_j(t) = 1$ and $h_j(t) = 0$ for
+$t < x_{\min,j}$.
+The Pareto-specific formulas in Table~\ref{tab:distributions} apply only
+for $t \geq x_{\min,j}$.
 
 \begin{remark}[Covariate-dependent hazards]
 \label{rem:covariate-hazards}

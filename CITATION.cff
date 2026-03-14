@@ -19,9 +19,8 @@ abstract: >-
   establish formal identifiability conditions: a necessary condition
   showing that diagnostically confounded components cannot be separately
   identified, and a sufficient condition guaranteeing identifiability
-  when candidate sets separate every component pair and the component
-  hazard functions are linearly independent. We provide instantiations
-  for five common parametric families.
+  when the candidate-set structure has full column rank. We provide
+  instantiations for five common parametric families.
 keywords:
   - reliability
   - series systems
@@ -32,5 +31,5 @@ keywords:
   - identifiability
   - censored data
 license: CC-BY-4.0
-date-released: "2025-02-13"
+date-released: "2026-02-19"
 repository-code: "https://github.com/queelius/masked-causes-in-series-systems"
