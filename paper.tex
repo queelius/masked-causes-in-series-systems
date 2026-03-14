@@ -8,7 +8,7 @@
 \usepackage{graphicx}
 \usepackage{natbib}
 \usepackage{tikz}
-\usetikzlibrary{fit,backgrounds,bayesnet}
+\usetikzlibrary{fit,backgrounds,bayesnet,positioning,arrows.meta,calc}
 \usepackage{caption}
 \usepackage{multirow}
 \usepackage{array}
@@ -1170,35 +1170,174 @@ homogeneous Weibull with a common shape), full column rank
 of~$\tilde{C}$ is both necessary and sufficient.
 \end{remark}
 
-\paragraph{Remediation of non-identifiability.}
-When components~$j$ and~$j'$ are diagnostically confounded, three
-strategies are available:
+\subsubsection*{Partial identifiability via the confounding graph}
+
+When full identifiability fails, some sub-parameters may still be
+recoverable.  We formalize the structure of partial identifiability
+through the \emph{confounding graph}.
+
+\begin{definition}[Confounding graph]
+\label{def:confounding-graph}
+The \emph{confounding graph} $G = (V, E)$ has vertex set
+$V = \{1, \ldots, m\}$ (the components) and edge set
+\begin{equation}
+    E = \bigl\{(j, j') : j \text{ and } j' \text{ are diagnostically
+    confounded}\bigr\}.
+\end{equation}
+That is, $(j, j') \in E$ if and only if $j \in c \iff j' \in c$
+for every $c \in \mathcal{S}$.
+\end{definition}
+
+Diagnostic confounding is an equivalence relation on components:
+components~$j$ and~$j'$ are confounded precisely when they have
+identical column patterns in~$C$.  The connected components of~$G$ are
+the equivalence classes of this relation.
+
+\begin{definition}[Super-component]
+\label{def:super-component}
+A \emph{super-component} is a connected component of~$G$.
+Let $\mathcal{P} = \{P_1, \ldots, P_q\}$ denote the partition of
+$\{1, \ldots, m\}$ into super-components.
+For each super-component~$P_k$, the \emph{aggregate hazard} is
+\begin{equation}
+    h_{P_k}(t; \v{\theta}) = \sum_{j \in P_k} h_j(t; \v{\theta}_j).
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Partial identifiability]
+\label{thm:partial-identifiability}
+Under C1--C2--C3, with each component family individually
+identifiable:
 \begin{enumerate}
-    \item \textbf{Collapse into a super-component.}
-    Replace the always-grouped components with a single composite
-    component whose hazard is $h_j + h_{j'}$.
-    This reduces the parameter count and restores identifiability at the
-    cost of losing individual component resolution.
+    \item[\emph{(a)}] The aggregate hazard $h_{P_k}$ is identifiable
+    for each super-component~$P_k$ if and only if the augmented
+    candidate-set matrix, reduced to one column per super-component
+    (where the column for~$P_k$ is the common column shared by all
+    $j \in P_k$), has full column rank~$q$.
+    \item[\emph{(b)}] The individual parameter vectors
+    $\v{\theta}_j$ for $j \in P_k$ with $|P_k| \geq 2$ are not
+    separately identifiable from the observed-data likelihood.
+    The likelihood depends on these parameters only through
+    $h_{P_k}$.
+    \item[\emph{(c)}] The number of identifiable super-component
+    parameters is at most $q \cdot d$, where $d$ is the dimension of
+    each component's parameter vector (assuming a common parametric
+    family).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\emph{Part~(a).}
+Define the reduced candidate-set matrix
+$C^* \in \{0,1\}^{|\mathcal{S}| \times q}$ by collapsing the
+columns within each super-component (which are identical by
+definition of diagnostic confounding).
+Let $\tilde{C}^*$ be $C^*$ augmented with the all-ones row.
+Each observation's likelihood contribution depends on components in
+$P_k$ only through $h_{P_k}$: by
+Theorem~\ref{thm:identifiability}(a), components within $P_k$
+always appear together in every candidate set, so their hazards
+always sum.
+The problem reduces to identifiability of $q$ ``components'' with
+hazards $h_{P_1}, \ldots, h_{P_q}$ and candidate-set matrix~$C^*$.
+By Theorem~\ref{thm:identifiability}(b), identifiability holds when
+$\operatorname{rank}(\tilde{C}^*) = q$.
+
+\emph{Part~(b).}
+This is a direct consequence of
+Theorem~\ref{thm:identifiability}(a): within~$P_k$, every pair is
+diagnostically confounded, so any reparametrization preserving
+$h_{P_k}$ leaves the likelihood unchanged.
+
+\emph{Part~(c).}
+Each identifiable super-component contributes at most $d$ parameters
+to the identifiable part of~$\v{\theta}$, and there are $q$ such
+super-components.
+\end{proof}
+
+\begin{example}[Hierarchical diagnostics]
+\label{ex:hierarchical}
+Consider a 5-component system where diagnostics can distinguish
+components within subsystems $\{1, 2\}$, $\{3, 4\}$, and $\{5\}$,
+but cannot distinguish between subsystems when multiple subsystems
+are implicated.
+With full diagnostics,
+\[
+\mathcal{S} = \bigl\{\{1,2,3,4\},\; \{1,2,5\},\;
+\{3,4,5\},\; \{1\},\; \{2\},\; \{3\},\; \{4\},\; \{5\}\bigr\}:
+\]
+every pair of components is separated, so $G$ has no edges,
+$q = m = 5$, and all parameters are identifiable.
+
+Now suppose the singleton observations are unavailable:
+$\mathcal{S}' = \bigl\{\{1,2,3,4\},\; \{1,2,5\},\; \{3,4,5\}\bigr\}$.
+Components~1 and~2 always co-occur, as do~3 and~4.
+The confounding graph has edges $(1,2)$ and $(3,4)$, giving
+super-components $P_1 = \{1,2\}$, $P_2 = \{3,4\}$,
+$P_3 = \{5\}$.
+Only $q = 3$ aggregate hazards are identifiable
+(Figure~\ref{fig:confounding-graph}).
+\end{example}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+    node distance=1.2cm,
+    comp/.style={circle, draw, minimum size=8mm, font=\small},
+    confound/.style={thick, red!70!black},
+    supercomp/.style={rounded corners=8pt, draw=blue!50, dashed,
+        inner sep=4pt}
+]
+\node[comp] (1) {1};
+\node[comp, right=of 1] (2) {2};
+\node[comp, right=1.8cm of 2] (3) {3};
+\node[comp, right=of 3] (4) {4};
+\node[comp, right=1.8cm of 4] (5) {5};
+\draw[confound] (1) -- (2);
+\draw[confound] (3) -- (4);
+\node[supercomp, fit=(1)(2),
+    label=above:{\footnotesize $P_1$}] {};
+\node[supercomp, fit=(3)(4),
+    label=above:{\footnotesize $P_2$}] {};
+\node[supercomp, fit=(5),
+    label=above:{\footnotesize $P_3$}] {};
+\end{tikzpicture}
+\caption{Confounding graph for the 5-component system in
+Example~\ref{ex:hierarchical} with reduced diagnostics
+$\mathcal{S}'$.
+Components connected by a red edge are diagnostically confounded.
+Dashed boxes indicate super-components---the units of partial
+identifiability.}
+\label{fig:confounding-graph}
+\end{figure}
+
+\paragraph{Remediation of non-identifiability.}
+When the confounding graph has non-trivial super-components
+($|P_k| \geq 2$), three strategies are available:
+\begin{enumerate}
+    \item \textbf{Collapse.}
+    Replace each super-component~$P_k$ with a single composite
+    component whose hazard is $h_{P_k} = \sum_{j \in P_k} h_j$.
+    This reduces the model to $q$ identifiable components at the
+    cost of losing individual resolution within each super-component.
     \item \textbf{Impose equality constraints.}
-    Assume the grouped components share identical parameter
-    values ($\v{\theta}_j = \v{\theta}_{j'}$), splitting the combined
-    hazard equally.
+    Assume $\v{\theta}_j = \v{\theta}_{j'}$ for all
+    $j, j' \in P_k$, splitting the aggregate hazard equally.
     This is appropriate when the components are physically
     interchangeable (e.g., identical capacitors on the same circuit
     board).
     \item \textbf{Bayesian regularization.}
-    Place informative priors on $\v{\theta}_j$ and $\v{\theta}_{j'}$ to
-    obtain a proper posterior even when the likelihood surface is
+    Place informative priors on $\v{\theta}_j$ and $\v{\theta}_{j'}$
+    to obtain a proper posterior even when the likelihood surface is
     flat~\citep[see][for Gibbs sampling under masked series system
     likelihoods]{kuo2000}.
-    The posterior concentrates as additional diagnostic information becomes
-    available, so the prior penalty vanishes asymptotically.
+    The posterior concentrates as additional diagnostic information
+    becomes available, so the prior penalty vanishes asymptotically.
 \end{enumerate}
-In each case, the practitioner should examine the candidate-set
-structure of the data before fitting the model.
-Convergence difficulties in numerical optimization (e.g., failure to
-converge within a maximum number of iterations) may signal that the
-separability condition of Definition~\ref{def:separability} is
+The confounding graph precisely identifies which components require
+such treatment.
+Convergence difficulties in numerical optimization may signal that
+the separability condition of Definition~\ref{def:separability} is
 violated or nearly violated.
 
 
