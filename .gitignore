@@ -10,9 +10,21 @@
 *.toc
 *.latexml.log
 
+# Built paper PDF (re-buildable via `make`)
+paper.pdf
+
+# Built figures from image/*.tex sources (re-buildable via makefig.sh)
+image/*_standalone.pdf
+image/*_standalone.png
+
+# Computed outputs
+experiments/*.rds
+
+# Scholia review-tool local state (config .scholia.yaml is tracked)
+.scholia/
+
 # Editor / OS
 .vscode/
 *.swp
 *~
 .DS_Store
-experiments/*.rds
