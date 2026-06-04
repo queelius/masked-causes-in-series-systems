@@ -49,7 +49,7 @@ A Likelihood Framework}
     \href{https://orcid.org/0000-0001-6443-9897}{ORCID: 0000-0001-6443-9897}
 }
 
-\date{February 2026}
+\date{May 2026}
 
 \begin{document}
 
@@ -63,8 +63,8 @@ functions, including covariate-dependent hazards.
 Three sufficient conditions on the masking mechanism---that the candidate set
 contains the true cause, that masking probabilities are symmetric across
 candidates, and that masking probabilities are independent of the component
-lifetime parameters---allow the unknown masking distribution to be eliminated
-from the likelihood.
+lifetime parameters---are the masked-data form of coarsening at random and
+allow the unknown masking distribution to be eliminated from the likelihood.
 We present the resulting likelihood contributions for exact failures with
 masked cause, right-censored, left-censored, and interval-censored observations.
 We establish formal identifiability conditions: a necessary condition showing
@@ -122,29 +122,75 @@ In Section~\ref{sec:families}, we provide hazard function specifications
 for five common families (Exponential, Weibull, Pareto, Log-normal,
 and Gamma), enabling practitioners to apply the framework directly.
 
+The C1--C2--C3 conditions and the basic masked-data likelihood are
+classical, originating with \citet{miyakawa1984} and \citet{Usher-1988}.
+The present paper makes three contributions beyond those classical
+results:
+\emph{(i)}~a formal identifiability theory giving a necessary
+condition (separability) and a checkable sufficient condition (full
+column rank of the augmented candidate-set matrix) for recovering
+component parameters from masked data, together with a
+graph-theoretic partial identifiability framework
+(Theorems~\ref{thm:identifiability}--\ref{thm:partial-identifiability});
+\emph{(ii)}~a unified likelihood treatment covering all four censoring
+types (exact, right, left, and interval); and
+\emph{(iii)}~a distribution-agnostic formulation in terms of component
+hazard functions that serves as a foundational reference for
+family-specific companion papers (Section~\ref{sec:families}).
+The identifiability theory of contribution (i) is the paper's main
+technical advance: it turns recoverability of the component parameters
+into a checkable rank condition on the candidate-set structure, and,
+when that condition fails, a graph-theoretic account of exactly which
+parameter combinations remain estimable.
+The remainder of this section places these contributions against the
+prior literature; readers familiar with the masked-data lineage may
+proceed to Section~\ref{sec:series-system}.
+
 \subsection{Related Work}
 \label{sec:related-work}
 
 The C1--C2--C3 conditions and the basic masked-data likelihood have a
 substantial history in the reliability literature.
-\citet{miyakawa1984} introduced the conditions for analyzing incomplete
-competing risks data.
+At the level of general missing-data theory, the three conditions are
+the masked-data instance of \emph{coarsening at random}
+\citep{heitjan1991,gill1997coarsening}: the condition under which a
+grouped or partially observed outcome can be analyzed by the face-value
+likelihood without modeling the coarsening mechanism.
+Within reliability, \citet{miyakawa1984} introduced the conditions for
+analyzing incomplete competing risks data.
 \citet{Usher-1988} formulated the MLE problem for masked series system
 data under these conditions, and \citet{Lin-1993} derived exact maximum
 likelihood estimates for exponential components.
 \citet{guess1991} established that the conditions hold in many practical
 diagnostic scenarios and developed component reliability estimation under
 partial failure information.
-\citet{Amma-2001} extended reliability estimation to broader settings
+\citet{sarhan2001} extended reliability estimation to broader settings
 with masked system life data.
 Most of this prior work specialized to the Exponential or Weibull
 families, though \citet{mukhopadhyay2006} gave a general MLE treatment
 that drops the symmetry assumption and jointly estimates masking
-probabilities.
+probabilities; that approach carries the masking probabilities as
+estimands, whereas under C1--C2--C3 the masking factor cancels from the
+score and need not be estimated at all.
 \citet{flehinger1998} introduced a two-stage framework for masked
 competing risks with Weibull inference, and \citet{flehinger2002}
 extended this to a fully parametric cause-specific hazard treatment---the
 closest published precursor to the present paper's framework.
+The novelty boundary against \citet{flehinger2002} is twofold.
+First, \citet{flehinger2002} jointly model the diagnostic mechanism
+through stage-specific masking probabilities $P(c \mid k, t)$ that
+enter the likelihood as nuisance parameters and must be estimated
+alongside~$\v{\theta}$, whereas our C1--C2--C3 conditions identify the
+precise structural assumptions (containment, symmetry, parameter
+independence) under which the masking factor separates and drops from
+the score for~$\v{\theta}$, yielding a likelihood that no longer
+contains a diagnostic-mechanism component.
+Second, their identifiability discussion is left implicit in the
+parametric Weibull setting; we make the candidate-set rank condition
+on $\tilde C$ explicit and distribution-agnostic, and we characterize
+partial identifiability via the confounding graph
+(Theorem~\ref{thm:partial-identifiability}), which has no counterpart
+in their treatment.
 Bayesian alternatives using Gibbs sampling were developed by
 \citet{lin1996} and \citet{kuo2000} for exponential and Weibull
 series systems.
@@ -163,23 +209,11 @@ machine learning methods for competing risks data, situating the
 parametric cause-specific approach---which our framework
 adopts---alongside subdistribution and machine learning alternatives.
 
-The C1--C2--C3 conditions and the basic likelihood derivation
-originate in the work of \citet{miyakawa1984} and
-\citet{Usher-1988}.
-The present paper makes three contributions beyond the classical
-results:
-\emph{(i)}~a formal identifiability theory characterizing precisely when
-component parameters can be recovered from masked data, including a
-graph-theoretic partial identifiability framework
-(Theorems~\ref{thm:identifiability}--\ref{thm:partial-identifiability});
-\emph{(ii)}~a unified likelihood treatment covering all four censoring
-types (exact, right, left, and interval); and
-\emph{(iii)}~a distribution-agnostic formulation in terms of component
-hazard functions that serves as a foundational reference for
-family-specific companion papers (Section~\ref{sec:families}).
-Companion papers and software packages can cite this work for the
-general theory while focusing on distribution-specific derivations
-and simulation studies.
+Relative to this prior work, the three contributions stated above
+sharpen the masked-data likelihood into a distribution-agnostic and
+identifiability-aware framework: companion papers and software packages
+can cite this work for the general theory while focusing on
+distribution-specific derivations and simulation studies.
 
 Non-parametric competing risks methods---including the Kaplan--Meier
 estimator, the Nelson--Aalen cumulative hazard estimator, and the
@@ -571,6 +605,12 @@ The right-censored contribution follows directly from the system
 reliability function (Theorem~\ref{thm:sys-reliability}).
 The remaining three rows---all involving a confirmed failure---require the
 three conditions developed in Section~\ref{sec:c1c2c3}.
+The interval-censored row is closely related to the interval-censored
+competing risks treatment of \citet{mitra2020}; the distinction is that
+their data carry a fully missing cause, whereas here the cause is
+reported as a candidate set $c_i$ that narrows but need not resolve it,
+so the failure term sums the component hazards over $c_i$ rather than
+over all $m$ components.
 
 \subsection{Dependency Structure}
 \label{sec:dependency-structure}
@@ -873,14 +913,26 @@ For instance, OBD voltage thresholds are hard-coded at manufacture; a
 vibration sensor's frequency band is set during installation.
 Neither adapts to the lifetime parameters of the components it monitors.
 
-Condition~\ref{cond:c3} is closely related to the concept of
-\emph{ignorability} in the missing-data framework of
+Conditions~\ref{cond:c1}--\ref{cond:c3} are the masked-data
+specialization of \emph{coarsening at random} (CAR), the general
+condition under which a randomly grouped, censored, or partially
+observed datum can be analyzed by the face-value likelihood without
+modeling the coarsening mechanism.
+CAR was introduced by \citet{heitjan1991} and characterized in full
+generality by \citet{gill1997coarsening}, who showed precisely when the
+coarsening mechanism factors out of the likelihood; it generalizes the
+missing-at-random and \emph{ignorability} notions of
 \citet{little2002statistical}.
-In our setting, the ``missingness'' is the loss of exact cause
-information through masking; C3 ensures that the masking mechanism is
-\emph{ignorable} for likelihood-based inference, in the sense that the
-conditional distribution of the candidate set need not be modeled when
-maximizing the likelihood over~$\btheta$
+In our setting, the coarsening is the loss of exact cause information
+through masking: the singleton cause $\{K_i\}$ is reported only as the
+larger candidate set $c_i \supseteq \{K_i\}$ (C1), with a grouping
+probability that does not distinguish the true cause from its companions
+(C2) and does not depend on the lifetime parameters (C3).
+Together these are a sufficient specialization of CAR to the
+candidate-set coarsening of a masked series system, and they ensure that
+the masking mechanism is \emph{ignorable} for likelihood-based inference,
+so the conditional distribution of the candidate set need not be modeled
+when maximizing the likelihood over~$\btheta$
 \citep[see][Ch.~6]{little2002statistical}.
 
 When covariates $\v{x}_i$ are present, C3 requires that the masking
@@ -1182,8 +1234,15 @@ family of equivalent maximizers rather than a unique MLE.
 Part~(b) provides a checkable algebraic condition: the analyst
 constructs~$\tilde{C}$ from the candidate-set
 structure~$\mathcal{S}$ and verifies that it has full column rank.
+Here $\tilde{C}$ is mechanism-level, the rows enumerating the
+candidate sets that occur with positive probability under the masking
+mechanism (i.e., the augmented support of~$\mathcal{S}$), not the
+empirical rows of any realized sample; finite-sample rank is then a
+matter of whether the observed sample exhausts the support, and
+follows from the support-level rank with probability tending to one
+as $n \to \infty$.
 
-\begin{remark}[Candidate-set rank and linear independence]
+\begin{remark}[Candidate-set rank, separability, and a cautionary example]
 \label{rem:linear-independence}
 The full column rank condition on~$\tilde{C}$ in
 Theorem~\ref{thm:identifiability}(b) is guaranteed when
@@ -1194,18 +1253,38 @@ Full column rank implies separability
 (Definition~\ref{def:separability}), but the converse is false: a
 separating mechanism can have
 $\operatorname{rank}(\tilde{C}) < m$ when every candidate set
-contains at least two components.
-For parametric families whose hazard functions are linearly
-independent over $(0, \infty)$---e.g., Weibull components with
-distinct shape parameters $k_j$, yielding linearly independent power
-functions $t^{k_j - 1}$---the weaker condition of separability
-alone suffices for identifiability, because the functional diversity
-of the hazard functions prevents nonzero parametric differences from
-satisfying $\tilde{C}\,g(t) = 0$ for all~$t > 0$.
-For families with linearly dependent hazards (e.g., exponential
-components, whose constant hazards are trivially dependent, or
-homogeneous Weibull with a common shape), full column rank
-of~$\tilde{C}$ is both necessary and sufficient.
+contains at least two components. For example, with $m = 4$ and
+$\mathcal{S} = \{\{1,2\}, \{3,4\}, \{1,3\}, \{2,4\}\}$ the
+mechanism is separating, yet $\tilde{C}$ has rank~$3$, with null
+space spanned by $a = (1, -1, -1, 1)^\top$.
+
+Separability alone is therefore \emph{not} sufficient for
+identifiability in general. Whether it suffices depends on the
+per-component \emph{perturbation} directions $g_j(t) = h_j(t;
+\v{\theta}_j) - h_j(t; \v{\theta}_j')$, not on the linear
+(in)dependence of the hazards $\{h_j\}$ themselves. Non-identifiability
+occurs precisely when some nonzero $g(t)$ stays in
+$\operatorname{null}(\tilde{C})$ for all $t$; in the example above
+this requires $g(t) = \lambda(t)\,a$ for a scalar function
+$\lambda$, i.e. $g_1 = -g_2 = -g_3 = g_4 = \lambda$. A sufficiently
+rich family (e.g. two or more free parameters per component) can
+realize such a confined $g$ with a nonzero parameter difference,
+so the mechanism is non-identifiable despite being separating and
+despite the hazards being linearly independent as a set of
+functions.
+
+The condition that genuinely rescues separability is functional
+confinement of the per-component perturbations. The canonical case
+is scale-only perturbation of Weibull components with \emph{distinct
+fixed shapes} $k_j$: there $g_j(t) = \delta_j\, t^{k_j - 1}$, and
+distinct exponents cannot be aligned to a common direction
+$\lambda(t)\,a_j$ unless every $\delta_j = 0$, so the only confined
+$g$ is zero and separability suffices. This is a special property of
+the distinct-shape scale family, not a consequence of linearly
+independent hazards. For families with linearly dependent hazards
+(e.g., exponential components, whose constant hazards are trivially
+dependent, or homogeneous Weibull with a common shape), full column
+rank of~$\tilde{C}$ is both necessary and sufficient.
 \end{remark}
 
 \subsubsection*{Partial identifiability via the confounding graph}
@@ -1289,6 +1368,15 @@ This is a direct consequence of
 Theorem~\ref{thm:identifiability}(a): within~$P_k$, every pair is
 diagnostically confounded, so any reparametrization preserving
 $h_{P_k}$ leaves the likelihood unchanged.
+Concretely, given any two reparametrizations $\v{\theta}'$ and
+$\v{\theta}''$ of $\v{\theta}$ that preserve disjoint pairwise sums
+$h_j + h_{j'}$ for $j, j' \in P_k$, their composition again preserves
+the full aggregate $h_{P_k} = \sum_{j \in P_k} h_j$ (sums of preserved
+sums remain preserved); iterating across the $|P_k|-1$ edges of any
+spanning tree of $P_k$ in $G$ generates the full reparametrization
+orbit of the super-component, so the unidentifiable directions span
+the $(|P_k|-1)\,d$-dimensional subspace of within-$P_k$ hazard
+reallocations.
 
 \emph{Part~(c).}
 Each identifiable super-component contributes at most $d$ parameters
@@ -1467,15 +1555,26 @@ quasi-Newton algorithms~\citep{nocedal2006numerical,byrd1995}.
 \label{sec:asymptotic-properties}
 
 Under standard regularity conditions (which must be verified for each
-specific distribution family)---including identifiability,
-smoothness of the log-likelihood, and the true parameter lying in the
-interior of the parameter space---the MLE is consistent, asymptotically normal, and
-asymptotically efficient~\citep{casella2002statistical,lehmann1998theory}.
-That is, as $n \to \infty$,
+specific distribution family), including identifiability, smoothness
+of the log-likelihood, and the true parameter lying in the interior
+of the parameter space, the MLE is consistent, asymptotically normal,
+and asymptotically
+efficient~\citep{casella2002statistical,lehmann1998theory,vandervaart1998asymptotic}.
+A precise statement of the regularity conditions adapted to the
+masked-data setting, together with the local-to-global bridge from
+identifiability (Theorem~\ref{thm:identifiability}) to consistency,
+is given in Appendix~\ref{app:regularity}.
+That is, in the identically distributed (no-covariate) case, as
+$n \to \infty$,
 $\hat{\btheta} \xrightarrow{p} \btheta_0$ (the true parameter) and
 $\sqrt{n}(\hat{\btheta} - \btheta_0) \xrightarrow{d}
 \mathcal{N}(\v{0}, \mathcal{I}^{-1}(\btheta_0))$,
 where $\mathcal{I}(\btheta_0)$ is the per-observation Fisher information matrix.
+When systems differ by covariates (the independent-not-identically-distributed
+case), the same conclusion holds under bounded covariate support with
+$\mathcal{I}(\btheta_0)$ replaced by the limiting average information
+$\bar{\mathcal{I}}(\btheta_0) = \lim_{n \to \infty} n^{-1} \sum_{i=1}^n
+\mathcal{I}_i(\btheta_0)$ (Remark~\ref{rem:inid-asymptotics}).
 For finite samples, these asymptotic approximations may be inaccurate,
 and bootstrap methods (e.g., the bias-corrected and accelerated
 method~\citep{efron1987better,efron1994introduction}) provide a
@@ -1735,6 +1834,10 @@ We briefly sketch what happens in each case:
     The MLE depends on the relative masking probabilities, which must
     be estimated or modeled~\citep[see][for inference under dependent
     masking]{craiu2006}.
+    The principal symmetry-free alternative is the random partition
+    masking model of \citet{yu2012}, which replaces the C2 symmetry
+    assumption with a parametric model for component-dependent masking
+    within the candidate set.
 
     \item \textbf{Relaxing C3} (masking depends on $\btheta$): The
     factor $\beta_i$ cannot be dropped from the likelihood, and the MLE
@@ -1843,6 +1946,290 @@ This framework provides a rigorous foundation for distribution-specific
 companion papers that can focus on deriving score equations, conducting
 simulation studies, and developing specialized inference tools for
 particular lifetime distribution families.
+
+%=============================================================================
+\section*{Acknowledgments}
+%=============================================================================
+
+This work grew out of the author's master's project at Southern
+Illinois University Edwardsville
+\citep{towell2023masters}, which developed the
+distribution-specific (Weibull) version of the framework.
+The author thanks the SIUE Department of Computer Science.
+
+%=============================================================================
+\section*{Data Availability}
+%=============================================================================
+
+No primary data were generated for this paper. The worked example in
+Section~\ref{sec:mle} uses simulated data; the generating code is
+distributed with the R packages cited under Code Availability.
+
+%=============================================================================
+\section*{Code Availability}
+%=============================================================================
+
+Three reference implementations of the framework are available as
+R packages: \texttt{maskedhaz} \citep{towell2025maskedhaz} for
+arbitrary hazard functions via numerical integration,
+\texttt{wei.series.md.c1.c2.c3} \citep{towell2023weibull} for
+Weibull components in closed form, and supporting infrastructure
+in \texttt{flexhaz} \citep{towell2025flexhaz},
+\texttt{serieshaz} \citep{towell2025serieshaz}, and
+\texttt{algebraic.mle} \citep{towell2023algebraic-mle}. Paper
+source, build scripts, and figure code are available at
+\url{https://github.com/queelius/\allowbreak masked-causes-in-series-systems}.
+
+\appendix
+
+%=============================================================================
+\section{Regularity for the masked-data MLE}
+\label{app:regularity}
+%=============================================================================
+
+This appendix collects the regularity conditions used by the
+asymptotic-consistency statement of
+Section~\ref{sec:asymptotic-properties}, and records the
+local-to-global identifiability bridge used by companion papers
+(notably \citealp{towell2026dpcoarsening,towell2026weaksupcoarsening}
+in the present author's coarsening series) that cite this appendix
+for the standard regularity package adapted to the masked-data
+setting. The presentation is standard; the role of this appendix is
+to fix a single set of conditions that both this paper and its
+siblings can reference, and to identify which step of the
+masked-data likelihood carries the candidate-set mechanism. The
+formulation follows \citet{vandervaart1998asymptotic}; an equivalent
+package is given by \citet[Ch.~6]{lehmann1998theory}.
+
+\subsection*{A.1\quad The six-condition package}
+
+Let $\Theta \subseteq \mathbb{R}^p$ be the parameter space, with
+$\v{\theta}_0 \in \Theta$ the true parameter. Let
+$L(\v{\theta}; D)$ denote the likelihood contribution of a single
+observation $D = (s, \omega, c, \v{x})$ (Section~\ref{sec:c1c2c3}),
+and write $\ell_1(\v{\theta}; D) = \log L(\v{\theta}; D)$ for the
+per-observation log-likelihood; in the notation of
+Section~\ref{sec:masked-data-notation} this is the single-observation
+contribution $L_i(\btheta)$ written as a function of a generic
+observation~$D$. We assume in this appendix that the observations
+$D_1, \ldots, D_n$ are independent and identically distributed under
+$\v{\theta}_0$, that is, the no-covariate case in which all systems
+share the same parameter vector.
+The independent-not-identically-distributed case advertised in
+Section~\ref{sec:series-system} (systems differing by covariates
+$\v{x}_i$) is treated separately in
+Remark~\ref{rem:inid-asymptotics} below.
+
+\begin{description}
+    \item[(R1) Compactness.] The parameter space $\Theta$ is compact,
+    and $\v{\theta}_0$ lies in the interior of $\Theta$. For
+    distribution families with naturally open parameter spaces (e.g.,
+    scale parameters $\lambda > 0$), $\Theta$ is taken to be a compact
+    set containing $\v{\theta}_0$ in its interior, and asymptotic
+    statements refer to consistency within this compactum.
+
+    \item[(R2) Identifiability.] The map
+    $\v{\theta} \mapsto P_{\v{\theta}}$ from $\Theta$ into the space of
+    observation distributions is injective:
+    $P_{\v{\theta}} = P_{\v{\theta}'}$ implies
+    $\v{\theta} = \v{\theta}'$. In the present framework this is the
+    conclusion of Theorem~\ref{thm:identifiability}(b): given C1--C2--C3
+    and the candidate-set rank condition $\operatorname{rank}(\tilde
+    C) = m$, the observed-data distribution determines $\v{\theta}$
+    uniquely.
+
+    \item[(R3) Dominating measure.] There exists a sigma-finite
+    measure $\mu$ on the observation sample space such that
+    $L(\v{\theta}; \cdot)$ is a density with respect to $\mu$ for every
+    $\v{\theta} \in \Theta$. For the mixed exact/censored model of
+    Section~\ref{sec:observational-model}, $\mu$ is the product of
+    Lebesgue measure on $[0, \infty)$, counting measure on the type
+    label $\omega$, and counting measure on the candidate set $c$.
+
+    \item[(R4) Continuity a.e.] For $\mu$-almost every $D$, the map
+    $\v{\theta} \mapsto \ell_1(\v{\theta}; D)$ is continuous on
+    $\Theta$. This follows from continuity of each component hazard
+    $h_j(\,\cdot\,; \v{\theta}_j)$ and of the cumulative hazard
+    $H_j$ in $\v{\theta}_j$ (uniform on compacts of $t$), together
+    with the fact that the candidate-set factor enters the
+    log-likelihood only through indicator-weighted sums of $h_j$ and
+    $H_j$ (Table~\ref{tab:likelihood-contributions}).
+
+    \item[(R5) Uniform integrability of the score.] There exists an
+    integrable envelope $G : \mathcal{X} \to [0, \infty)$ with
+    $\E_{\v{\theta}_0} G(D) < \infty$ such that
+    $\sup_{\v{\theta} \in \Theta} \|\nabla_{\v{\theta}} \ell_1(\v{\theta};
+    D)\| \le G(D)$ for $\mu$-a.e.~$D$. This is the standard
+    domination condition that justifies interchanging differentiation
+    and expectation, and that drives the uniform law of large numbers
+    used in the consistency proof. For the exact and right-censored
+    contributions it reduces to integrability of
+    $\|\nabla_{\v{\theta}_j} H_j(s; \v{\theta}_j)\|$ over $s \sim
+    P_{\v{\theta}_0}$, which holds for each of the five families
+    treated in Section~\ref{sec:families} on any compact $\Theta$ that
+    bounds the failure-rate parameters away from $0$ and $\infty$.
+
+    \item[(R6) Nonsingular Fisher information.] The per-observation
+    Fisher information
+    \[
+    \mathcal{I}(\v{\theta}_0) = \E_{\v{\theta}_0}\!\bigl[
+        \nabla_{\v{\theta}} \ell_1(\v{\theta}_0; D)
+        \,
+        \nabla_{\v{\theta}} \ell_1(\v{\theta}_0; D)^{\top}
+    \bigr]
+    \]
+    exists and is positive definite. Under C1--C2--C3,
+    $\nabla_{\v{\theta}} \ell_1$ involves $h_j$, $H_j$, and their
+    gradients in $\v{\theta}_j$, weighted by the candidate-set indicators;
+    positive definiteness is the second-order analog of the
+    first-order rank condition on $\tilde C$, and is generically
+    satisfied whenever Theorem~\ref{thm:identifiability}(b) holds
+    and the masking mechanism realizes its support with positive
+    probability.
+\end{description}
+
+\subsection*{A.2\quad Local-to-global identifiability under compactness}
+
+The compactness assumption (R1) bridges local identifiability at
+$\v{\theta}_0$, i.e., $\v{\theta}_0$ is an isolated zero of
+$\v{\theta} \mapsto K(\v{\theta}_0, \v{\theta})$, where $K$ is the
+Kullback--Leibler divergence, to the global statement
+\begin{equation*}
+    \arg\max_{\v{\theta} \in \Theta}
+    \E_{\v{\theta}_0}\!\ell_1(\v{\theta}; D) = \{\v{\theta}_0\}
+\end{equation*}
+needed for consistency. This
+is the standard Wald-style argument
+\citep{wald1949,vandervaart1998asymptotic}, which we record here in
+the form used by the masked-data setting.
+
+\begin{lemma}[Wald-style local-to-global bridge]
+\label{lem:wald-bridge}
+Assume (R1)--(R4). Let
+$M(\v{\theta}) = \E_{\v{\theta}_0} \ell_1(\v{\theta}; D)$, finite by
+(R5), and suppose:
+\begin{enumerate}
+    \item[(i)] (Local identifiability) $\v{\theta}_0$ is an
+    isolated maximizer of $M$ on some neighborhood
+    $U \subseteq \Theta$ of $\v{\theta}_0$.
+    \item[(ii)] (Global identifiability) $M(\v{\theta}) <
+    M(\v{\theta}_0)$ for all $\v{\theta} \in \Theta$ with
+    $\v{\theta} \neq \v{\theta}_0$.
+\end{enumerate}
+Then $\v{\theta}_0$ is the unique maximizer of $M$ on $\Theta$, and
+this maximizer is well-separated in the sense that for every open
+$V \ni \v{\theta}_0$,
+\[
+    \sup_{\v{\theta} \in \Theta \setminus V} M(\v{\theta}) <
+    M(\v{\theta}_0).
+\]
+\end{lemma}
+
+\begin{proof}
+Uniqueness is (ii). For well-separation, suppose for contradiction
+that some open $V \ni \v{\theta}_0$ admits a sequence
+$\v{\theta}_k \in \Theta \setminus V$ with $M(\v{\theta}_k) \to
+M(\v{\theta}_0)$. By compactness (R1), $\Theta \setminus V$ is
+compact, so $(\v{\theta}_k)$ has a subsequence converging to some
+$\v{\theta}^\star \in \Theta \setminus V$. By upper semi-continuity
+of $M$ (which follows from (R4) and (R5) via Fatou),
+$M(\v{\theta}^\star) \ge \limsup M(\v{\theta}_k) = M(\v{\theta}_0)$.
+By (ii), $\v{\theta}^\star = \v{\theta}_0$, contradicting
+$\v{\theta}^\star \in \Theta \setminus V$.
+\end{proof}
+
+The well-separation conclusion of Lemma~\ref{lem:wald-bridge}, combined
+with the uniform law of large numbers
+$\sup_{\v{\theta} \in \Theta} |n^{-1} \sum_{i=1}^n \ell_1(\v{\theta};
+D_i) - M(\v{\theta})| \xrightarrow{p} 0$ guaranteed by (R4)--(R5)
+\citep[Theorem~5.7]{vandervaart1998asymptotic}, yields consistency of
+the MLE: $\hat{\v{\theta}}_n \xrightarrow{p} \v{\theta}_0$. Asymptotic
+normality with limiting variance $\mathcal{I}^{-1}(\v{\theta}_0)$ then
+follows from (R6) and a standard Taylor expansion of the score around
+$\v{\theta}_0$ \citep[Theorem~5.39]{vandervaart1998asymptotic}.
+
+\subsection*{A.3\quad Application to Section~\ref{sec:asymptotic-properties}}
+
+The asymptotic-consistency statement of
+Section~\ref{sec:asymptotic-properties} follows from (R1)--(R6) via
+Lemma~\ref{lem:wald-bridge} and the standard argument referenced
+above. The masked-data complication is confined to two places, both
+attributable to the candidate-set mechanism, and both rendered benign
+by the C1--C2--C3 conditions of Section~\ref{sec:c1c2c3}.
+
+First, the per-observation likelihood factorizes as
+$L(\v{\theta}; D) = L_\theta(\v{\theta}; t, c) \cdot
+L_\kappa(c \mid t, k)$, where $L_\kappa$ is the candidate-set
+mechanism. By C3 (Section~\ref{sec:c1c2c3}), $L_\kappa$ does not
+depend on $\v{\theta}$, so it contributes an additive constant to
+$\ell_1(\v{\theta}; D)$ that drops out of both the score
+$\nabla_{\v{\theta}} \ell_1$ and the maximizer of $M$. The Fisher
+information (R6) is therefore the information of $L_\theta$ alone,
+unchanged from the fully observed case modulo the candidate-set
+weighting of the hazard.
+
+Second, identifiability (R2) is no longer automatic: the candidate
+sets must distinguish components, which is precisely the rank
+condition on $\tilde C$ in Theorem~\ref{thm:identifiability}(b). When
+that rank condition fails, the equivalent of (R2) holds only on
+super-components (Theorem~\ref{thm:partial-identifiability}), and the
+consistency statement degrades correspondingly: the MLE is consistent
+for the aggregate hazards $h_{P_k}$ but not for the individual
+component parameters within a non-trivial super-component.
+
+These two observations are the entirety of the masked-data
+modification to the standard MLE regularity package, and they are the
+content that companion papers in the coarsening series cite when
+referring to this appendix.
+
+\subsection*{A.4\quad Extension to covariate-dependent systems}
+
+The conditions (R1)--(R6) and the conclusions of Sections A.1--A.3 are
+stated for the i.i.d.\ case, in which all systems share the parameter
+vector $\v{\theta}_0$. The body of the paper
+(Section~\ref{sec:series-system}) also admits systems that differ by
+covariates $\v{x}_i$, for instance through the proportional-hazards
+specification $h_j(t \mid \v{x}_i) = h_{0,j}(t)\,\exp(\v{x}_i^{\top}
+\v{\beta}_j)$. Such observations are independent but not identically
+distributed, so the i.i.d.\ limit theorems invoked above do not apply
+verbatim. We record the corresponding guarantee as an extension rather
+than reprove it here.
+
+\begin{remark}[Asymptotics for the covariate (i.n.i.d.) case]
+\label{rem:inid-asymptotics}
+Suppose the systems are independent with per-observation
+log-likelihoods $\ell_1(\v{\theta}; D_i)$ that depend on $\v{\theta}$
+through covariate-indexed hazards, and assume:
+(i) the covariates $\v{x}_i$ take values in a bounded set
+$\mathcal{X} \subset \mathbb{R}^d$;
+(ii) conditions analogous to (R1), (R3)--(R5) hold uniformly over
+$\v{x} \in \mathcal{X}$ (in particular, the score envelope of (R5)
+is integrable uniformly in the covariate);
+and (iii) the averaged Fisher information
+$\bar{\mathcal{I}}_n(\v{\theta}_0) = n^{-1} \sum_{i=1}^n
+\mathcal{I}_i(\v{\theta}_0)$, where $\mathcal{I}_i$ is the
+information of the $i$th observation, converges to a positive-definite
+limit $\bar{\mathcal{I}}(\v{\theta}_0)$ as $n \to \infty$, with the
+identifiability of Theorem~\ref{thm:identifiability}(b) holding for
+the realized candidate-set support.
+Then the MLE remains consistent and asymptotically normal,
+$\sqrt{n}(\hat{\v{\theta}}_n - \v{\theta}_0) \xrightarrow{d}
+\mathcal{N}\!\bigl(\v{0}, \bar{\mathcal{I}}(\v{\theta}_0)^{-1}\bigr)$,
+with the single per-observation information of (R6) replaced by the
+limiting average information $\bar{\mathcal{I}}(\v{\theta}_0)$.
+This follows from the standard triangular-array (Lindeberg) MLE
+theory for the independent-not-identically-distributed case
+\citep{hoadley1971,vandervaart1998asymptotic}; the bounded-covariate
+assumption (i) supplies the uniform integrability and the
+information-convergence condition (iii) that these theorems require.
+The masked-data reduction of Sections A.1--A.3 is unaffected: by C3
+the candidate-set mechanism still contributes a $\v{\theta}$-free
+additive constant to each $\ell_1(\v{\theta}; D_i)$, so it drops from
+every per-observation score and hence from $\bar{\mathcal{I}}_n$.
+We state this as an extension and do not develop the family-by-family
+verification of conditions (i)--(iii), which we defer to the
+distribution-specific companion papers.
+\end{remark}
 
 \bibliographystyle{plainnat}
 \bibliography{refs}

@@ -69,9 +69,8 @@ We present the resulting likelihood contributions for exact failures with
 masked cause, right-censored, left-censored, and interval-censored observations.
 We establish formal identifiability conditions: a necessary condition showing
 that diagnostically confounded components cannot be separately identified,
-and a sufficient condition guaranteeing identifiability when candidate sets
-separate every component pair and the component hazard functions are linearly
-independent.
+and a sufficient condition guaranteeing identifiability when the
+candidate-set structure has full column rank.
 The framework serves as a foundation for distribution-specific inference,
 and we provide a summary of instantiations for five common lifetime distribution
 families.
@@ -1196,8 +1195,8 @@ $j \in c \iff j' \in c$ for every $c \in \mathcal{S}$---we say $j$
 and $j'$ are \emph{diagnostically confounded}.
 \end{definition}
 
-The following theorem shows that separability is the key condition
-governing identifiability under C1--C2--C3.
+The following theorem characterizes identifiability under C1--C2--C3
+in terms of the candidate-set structure.
 
 \begin{theorem}[Identifiability under C1--C2--C3]
 \label{thm:identifiability}
@@ -1207,6 +1206,10 @@ where $\v{\theta} = (\v{\theta}_1, \ldots, \v{\theta}_m) \in \Theta
 each component family is individually identifiable: $h_j(\cdot\,;
 \v{\theta}_j) = h_j(\cdot\,; \v{\theta}_j')$ for all $t > 0$ implies
 $\v{\theta}_j = \v{\theta}_j'$.
+Let $C \in \{0,1\}^{|\mathcal{S}| \times m}$ be the candidate-set
+matrix whose rows are the indicator vectors of the sets
+in~$\mathcal{S}$, and let $\tilde{C}$ denote~$C$ augmented with the
+all-ones row.
 Under C1--C2--C3:
 \begin{enumerate}
     \item[\emph{(a)}] \textbf{Necessary condition.}
@@ -1219,12 +1222,10 @@ Under C1--C2--C3:
     $t > 0$ yields the same likelihood value.
 
     \item[\emph{(b)}] \textbf{Sufficient condition.}
-    If the masking mechanism is separating
-    (Definition~\ref{def:separability}), and at least some
-    observations are exact failures (type~$E$), then the parameter
-    vector $\v{\theta}$ is identifiable for any parametric family
-    whose hazard functions $\{h_1, \ldots, h_m\}$ are linearly
-    independent over $(0, \infty)$.
+    If $\tilde{C}$ has full column rank~$m$ and the observational
+    mechanism assigns positive probability to both exact-failure
+    events (type~$E$) and right-censored events (type~$R$),
+    then the parameter vector $\v{\theta}$ is identifiable.
 \end{enumerate}
 \end{theorem}
 
@@ -1248,7 +1249,7 @@ reallocation preserving this sum leaves $L$ unchanged.
 
 \emph{Part~(b).}
 We proceed by contradiction.
-Suppose the masking mechanism is separating and let
+Suppose $\tilde{C}$ has full column rank and let
 $\v{\theta} \neq \v{\theta}'$ with $L(\v{\theta}) = L(\v{\theta}')$
 for all data sets.
 Write $h_j = h_j(\cdot\,; \v{\theta}_j)$,
@@ -1285,69 +1286,55 @@ cancel, yielding
     \quad \text{for all } c \in \mathcal{S} \text{ and all } t > 0.
 \end{equation}
 
-\emph{Step~3: Component-wise equality via linear independence.}
-Let $C \in \{0,1\}^{|\mathcal{S}| \times m}$ be the candidate-set
-matrix whose rows are the indicator vectors of the sets
-in~$\mathcal{S}$, and let $\tilde{C}$ denote~$C$ augmented with the
-all-ones row from~\eqref{eq:total-hazard-eq}.
-Steps~1 and~2 give $\tilde{C} \, g(t) = 0$ for all $t > 0$,
-where $g(t) = (g_1(t), \ldots, g_m(t))^\top$.
-If $\tilde{C}$ has full column rank~$m$, then $g(t) = 0$ for all~$t$
-and we are done.
-In general, suppose $g(t) \neq 0$ for some~$t$; then $g(t)$ is a
-nonzero vector in $\operatorname{null}(\tilde{C})$.
-For any $a = (a_1, \ldots, a_m)^\top \in \operatorname{null}(\tilde{C})$,
-the rows of~$\tilde{C}$ give $\sum_{j \in c} a_j = 0$ for all
-$c \in \mathcal{S}$ and $\sum_j a_j = 0$.
-But from~\eqref{eq:candidate-eq}, $\sum_{j \in c} h_j(t) =
-\sum_{j \in c} h_j'(t)$ for every~$c$, so in particular
-$\sum_j a_j h_j(t) = \sum_j a_j h_j'(t)$.
-Since $a_j g_j(t) = a_j h_j(t) - a_j h_j'(t)$, summing gives
-$\sum_j a_j g_j(t) = 0$---which is already guaranteed by
-$a \in \operatorname{null}(\tilde{C})$ and $\tilde{C}g = 0$.
-The linear independence hypothesis resolves this:
-if $\{h_1, \ldots, h_m\}$ are linearly independent over $(0,\infty)$,
-then the constraint equations from distinct candidate sets, combined
-with separability (which ensures that for every component~$j$ there
-exist $c_1 \ni j$ and $c_2 \not\ni j$ in~$\mathcal{S}$),
-generate enough independent functional relations on the~$g_j$ to force
-$g_j(t) = 0$ for all~$j$ and~$t$.
-Specifically, subtracting~\eqref{eq:candidate-eq} for $c_2$ from
-that for $c_1$ eliminates all components in $c_1 \cap c_2$ and yields
-a nontrivial linear combination of the~$h_j$ that must vanish;
-linear independence then forces each coefficient to be zero.
+\emph{Step~3: Component-wise equality.}
+Let $g(t) = (g_1(t), \ldots, g_m(t))^\top$.
+Steps~1 and~2 give $\tilde{C} \, g(t) = 0$ for all $t > 0$.
+Since $\tilde{C}$ has full column rank~$m$ by hypothesis,
+$g(t) = 0$ for all~$t$---that is,
+$h_j(t; \v{\theta}_j) = h_j(t; \v{\theta}_j')$ for every~$j$ and
+all $t > 0$.
 By the individual identifiability assumption,
-$\v{\theta}_j = \v{\theta}_j'$ for each~$j$.
+$\v{\theta}_j = \v{\theta}_j'$ for each~$j$, contradicting
+$\v{\theta} \neq \v{\theta}'$.
 \end{proof}
 
 Part~(a) states that diagnostically confounded components are
 fundamentally unresolvable: the likelihood surface has a ridge along
 all reparametrizations of the confounded pair, producing an infinite
 family of equivalent maximizers rather than a unique MLE.
-Part~(b) provides a checkable condition: the analyst needs only
-inspect the candidate-set structure~$\mathcal{S}$ to verify separability.
+Part~(b) provides a checkable algebraic condition: the analyst
+constructs~$\tilde{C}$ from the candidate-set
+structure~$\mathcal{S}$ and verifies that it has full column rank.
 
-\begin{remark}[Linear independence of hazard functions]
+\begin{remark}[Candidate-set rank, separability, and a cautionary example]
 \label{rem:linear-independence}
-The linear independence condition in
-Theorem~\ref{thm:identifiability}(b) holds generically for all
-families in Table~\ref{tab:distributions}.
-The Weibull hazard $h_j(t) \propto t^{k_j - 1}$ with distinct
-shapes $k_j$ yields linearly independent power functions.
-For the exponential family ($k_j = 1$ for all~$j$), the hazards
-are constant and hence linearly \emph{dependent}; in this case,
-separability of the candidate sets carries the full burden of
-identifiability.
-For families with identical functional form across components
-(e.g., exponential or homogeneous Weibull), identifiability requires
-that the candidate-set matrix
-$C \in \{0,1\}^{|\mathcal{S}| \times m}$---whose rows are the
-indicator vectors of the candidate sets in $\mathcal{S}$---has full
-column rank~$m$.
-This is strictly stronger than separability
-(which requires only that no two columns of~$C$ are identical) but
-is guaranteed when $\mathcal{S}$ includes a singleton $\{j\}$ for
-each component~$j$.
+Full column rank of~$\tilde{C}$ implies separability
+(Definition~\ref{def:separability}), but the converse is false: a
+separating mechanism can have
+$\operatorname{rank}(\tilde{C}) < m$ when every candidate set
+contains at least two components. For example, with $m = 4$ and
+$\mathcal{S} = \{\{1,2\}, \{3,4\}, \{1,3\}, \{2,4\}\}$ the
+mechanism is separating, yet $\tilde{C}$ has rank~$3$, with null
+space spanned by $a = (1, -1, -1, 1)^\top$. Separability alone is
+therefore \emph{not} sufficient for identifiability in general.
+
+Whether separability suffices depends on the per-component
+perturbation directions $g_j$, not on the linear (in)dependence of
+the hazards $\{h_j\}$. Non-identifiability occurs precisely when a
+nonzero $g(t)$ stays in $\operatorname{null}(\tilde{C})$ for all
+$t$; in the example above this requires $g(t) = \lambda(t)\,a$ for a
+scalar function $\lambda$. A sufficiently rich per-component family
+can realize such a confined $g$ with a nonzero parameter difference,
+so the mechanism is non-identifiable despite separability and
+despite the hazards being linearly independent as a set. The
+condition that genuinely rescues separability is functional
+confinement of the perturbations: e.g. scale-only perturbation of
+Weibull components with \emph{distinct fixed shapes} $k_j$ gives
+$g_j(t) = \delta_j t^{k_j-1}$, whose distinct exponents cannot align
+to a common direction $\lambda(t)\,a_j$ unless every $\delta_j = 0$.
+For families with linearly dependent hazards (e.g., exponential
+components, or homogeneous Weibull with a common shape), full column
+rank of~$\tilde{C}$ is both necessary and sufficient.
 \end{remark}
 
 \paragraph{Remediation of non-identifiability.}
