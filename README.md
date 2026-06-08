@@ -4,6 +4,10 @@
 &middot; [lex@metafunctor.com](mailto:lex@metafunctor.com)
 &middot; [ORCID 0000-0001-6443-9897](https://orcid.org/0000-0001-6443-9897)
 
+## Status
+
+**Reviewed 2026-06-08 (papermill multi-agent): ready.** No critical and no major issues; all load-bearing results were independently re-derived and the build is clean. The single remaining step is the IEEEtran two-column reformat at submission to IEEE Transactions on Reliability (a deferred production step).
+
 ## Abstract
 
 We develop a distribution-agnostic likelihood framework for estimating component reliability from series system data when the component cause of failure is masked. Three sufficient conditions on the masking mechanism (C1--C2--C3) allow the unknown masking distribution to be eliminated from the likelihood, yielding likelihood contributions expressed entirely in terms of component hazard and reliability functions. The framework covers exact failures with masked cause, right-censored, left-censored, and interval-censored observations.
