@@ -67,10 +67,16 @@ lifetime parameters---are the masked-data form of coarsening at random and
 allow the unknown masking distribution to be eliminated from the likelihood.
 We present the resulting likelihood contributions for exact failures with
 masked cause, right-censored, left-censored, and interval-censored observations.
-We establish formal identifiability conditions: a necessary condition showing
-that diagnostically confounded components cannot be separately identified,
-and a sufficient condition guaranteeing identifiability when the
-candidate-set structure has full column rank.
+Our central contribution is a rank-based identifiability theory for the
+masked-cause model: identifiability holds when an augmented candidate-set
+matrix has full column rank, and diagnostically confounded components
+(those that always co-occur in the candidate set) cannot be separately
+identified.
+We show that mere separability of the candidate-set structure is
+\emph{not} sufficient for identifiability, and we give a confounding-graph
+decomposition that characterizes exactly which parameter combinations
+(the aggregate hazards of the graph's connected super-components) remain
+estimable when full identifiability fails.
 The framework serves as a foundation for distribution-specific inference,
 and we provide a summary of instantiations for five common lifetime distribution
 families.
@@ -126,22 +132,32 @@ The C1--C2--C3 conditions and the basic masked-data likelihood are
 classical, originating with \citet{miyakawa1984} and \citet{Usher-1988}.
 The present paper makes three contributions beyond those classical
 results:
-\emph{(i)}~a formal identifiability theory giving a necessary
-condition (separability) and a checkable sufficient condition (full
-column rank of the augmented candidate-set matrix) for recovering
-component parameters from masked data, together with a
-graph-theoretic partial identifiability framework
-(Theorems~\ref{thm:identifiability}--\ref{thm:partial-identifiability});
+\emph{(i)}~a formal identifiability theory with two parts: a checkable
+sufficient condition (full column rank of the augmented candidate-set
+matrix~$\tilde{C}$, Theorem~\ref{thm:identifiability}) for recovering
+component parameters from masked data, and a confounding-graph
+decomposition (Theorem~\ref{thm:partial-identifiability}) that, when
+that rank condition fails, characterizes exactly which parameter
+combinations remain estimable;
 \emph{(ii)}~a unified likelihood treatment covering all four censoring
 types (exact, right, left, and interval); and
 \emph{(iii)}~a distribution-agnostic formulation in terms of component
 hazard functions that serves as a foundational reference for
 family-specific companion papers (Section~\ref{sec:families}).
 The identifiability theory of contribution (i) is the paper's main
-technical advance: it turns recoverability of the component parameters
-into a checkable rank condition on the candidate-set structure, and,
-when that condition fails, a graph-theoretic account of exactly which
-parameter combinations remain estimable.
+technical advance.
+Its first part turns recoverability of the component parameters into a
+checkable rank condition on the candidate-set structure; a perhaps
+surprising consequence (Remark~\ref{rem:linear-independence}) is that
+candidate-set \emph{separability}, the natural pairwise condition, is
+\emph{not} sufficient for identifiability, so the rank condition
+on~$\tilde{C}$ cannot be replaced by separability alone.
+Its second part, the partial-identifiability decomposition
+(Theorem~\ref{thm:partial-identifiability}), gives a graph-theoretic
+account of exactly which aggregate parameters remain estimable when
+full identifiability fails, a refinement with no counterpart in the
+classical exact-cause results of \citet{meilijson1981}
+and~\citet{nowik1990}.
 The remainder of this section places these contributions against the
 prior literature; readers familiar with the masked-data lineage may
 proceed to Section~\ref{sec:series-system}.
@@ -214,6 +230,20 @@ sharpen the masked-data likelihood into a distribution-agnostic and
 identifiability-aware framework: companion papers and software packages
 can cite this work for the general theory while focusing on
 distribution-specific derivations and simulation studies.
+
+The candidate-set structure central to this paper also appears, under
+different names, outside reliability: in weakly supervised learning,
+each instance carries a set of candidate labels exactly one of which is
+correct, as in the partial-label formulation of \citet{cour2011partial}
+and the superset-learning view of \citet{huellermeier2015superset}.
+Those works minimize a surrogate classification loss for predictive
+accuracy, whereas the present paper poses a parametric identifiability
+question (when does the augmented candidate-set matrix~$\tilde{C}$
+recover the component parameters) for the cause-of-failure model;
+the broader claim that the rank condition is a single cross-domain
+criterion unifying masked reliability with weak supervision is
+developed separately~\citep{towell2026weaksupcoarsening} and is not
+argued here.
 
 Non-parametric competing risks methods---including the Kaplan--Meier
 estimator, the Nelson--Aalen cumulative hazard estimator, and the
@@ -814,6 +844,17 @@ Condition~\ref{cond:c2} is a requirement on the masking \emph{mechanism},
 not merely on the observed data: it must hold for all candidate sets
 $c_i$ that the mechanism can produce, not just the particular sets
 realized in the sample.
+The symmetry assumption is standard in the masked competing-risks
+literature, where it underlies most analyses surveyed by
+\citet{sen2001masked}; \citet{yu2010conditional} give a probabilistic
+interpretation of it in terms of an auxiliary masking variable and note
+that it restricts the admissible class of masking distributions.
+Our treatment differs in role rather than in form: rather than positing
+symmetry as a modeling convenience, we isolate it as one of the three
+conditions (C1--C2--C3) under which the masking factor separates from
+the score, and Theorem~\ref{thm:identifiability} makes explicit what its
+candidate-set structure must satisfy for the surviving likelihood to
+identify~$\btheta$.
 When $|c_i| = 1$ (a singleton candidate set), C2 is satisfied
 vacuously---the condition is non-trivial only when $|c_i| \geq 2$.
 In words, C2 requires that the diagnostic does not
@@ -1094,11 +1135,17 @@ identifiability without parametric assumptions; our framework takes the
 complementary parametric route.
 In the autopsy model (where the exact failure cause is observed),
 \citet{meilijson1981} proved that identifiability depends on the rank of
-the incidence matrix of minimal fatal sets.
-Our candidate-set matrix~$\tilde{C}$
-(Theorem~\ref{thm:identifiability}) plays an analogous role in the
-masked-data setting, where the diagnostic produces a candidate set
-rather than an exact cause.
+the incidence matrix of minimal fatal sets, and \citet{nowik1990}
+sharpened this to a necessary-and-sufficient condition on the
+system's cut-set structure (identifiability holds if and only if at
+most one component lies in all cut sets).
+Both results assume the exact failed component is recorded at autopsy;
+Theorem~\ref{thm:identifiability} is the masked-data instance of this
+rank criterion, replacing the observed exact cause with the augmented
+candidate-set matrix~$\tilde{C}$ when the diagnostic reports only a
+candidate set, and Theorem~\ref{thm:partial-identifiability} adds the
+confounding-graph decomposition of partial identifiability, which has
+no counterpart in the exact-cause autopsy model.
 Our framework inherits identifiability from the independence assumption,
 which allows the system reliability to factor as a product of component
 reliabilities (Theorem~\ref{thm:sys-reliability}).
@@ -1930,11 +1977,16 @@ The key results are:
     through~\ref{sec:c3});
     \item The combined likelihood contribution under C1--C2--C3
     (Theorem~\ref{thm:likelihood-contribution});
-    \item Formal identifiability conditions: a necessary condition
-    showing that diagnostically confounded components are
-    non-identifiable, and a sufficient condition guaranteeing
-    identifiability when the candidate-set matrix has full column
-    rank (Theorem~\ref{thm:identifiability});
+    \item A rank-based identifiability theorem: the parameter vector is
+    identifiable when the augmented candidate-set matrix has full column
+    rank, while diagnostically confounded components are non-identifiable
+    (Theorem~\ref{thm:identifiability}); and the observation that
+    separability of the candidate-set structure is not by itself
+    sufficient (Remark~\ref{rem:linear-independence});
+    \item A confounding-graph decomposition of partial identifiability
+    (Theorem~\ref{thm:partial-identifiability}) that characterizes the
+    aggregate hazards of the graph's super-components as the estimable
+    parameter combinations when full identifiability fails;
     \item The general log-likelihood and a recipe for applying the
     framework to any parametric hazard specification
     (Section~\ref{sec:mle});
