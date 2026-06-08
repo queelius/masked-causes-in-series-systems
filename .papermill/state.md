@@ -160,28 +160,28 @@ review_history:
     notes: "Area chair ran all six lenses directly (sub-agent spawning unavailable, as in the 2026-06-04 run); proofs re-derived in Python/SymPy plus an independent optimizer, build run from scratch and tree restored. Assessed the 2026-06-08 revision (commit 7d2467d, made after the 2026-06-04 review): sharper abstract/contribution framing, added weak-supervision (cour2011partial, huellermeier2015superset) and C2-symmetry-lineage (sen2001masked, yu2010conditional) paragraphs, added nowik1990 cut-set characterization; a quality improvement, no new error. 0 Critical, 0 Major. Every load-bearing result re-verifies exactly (C1/C2/C3 cancellation; Theorem 8 rank identifiability with the rank-3 / null (1,-1,-1,1) witness; Theorem 9 Example-13 q=3 reduction; worked-example MLE in closed form and via independent optimizer; Remark 6 I(K;C_w)=ln(m/w)). Clean build: 30 pages, 0 undefined refs, 0 warnings, 0 overfull/underfull, 0 BibTeX warnings, 0 true orphans. Two cosmetic minors carried over (Hoadley triangular-array gloss; L(theta;D) vs L(theta)). Only required submission-time step is the deferred IEEEtran reformat. File: reviews/2026-06-08/review.md."
 
 related_papers:
-  - path: "~/github/papers/scrna-coarsening"
+  - path: "~/github/coarsening/papers/scrna-coarsening"
     rel: "extended-by"
     label: "Sibling paper applying the coarsening framework to single-cell RNA-seq; cites this work as towell2026masked."
-  - path: "~/github/papers/spatial-coarsening"
+  - path: "~/github/coarsening/papers/spatial-coarsening"
     rel: "extended-by"
     label: "Sibling paper applying the framework to spatial transcriptomics; cites as towell2026masked."
-  - path: "~/github/papers/dp-coarsening"
+  - path: "~/github/coarsening/papers/dp-coarsening"
     rel: "extended-by"
     label: "Sibling paper on differential privacy as coarsening; cites as towell2026masked."
-  - path: "~/github/papers/weaksup-coarsening"
+  - path: "~/github/coarsening/papers/weaksup-coarsening"
     rel: "extended-by"
     label: "Sibling paper on weakly supervised learning as coarsening; cites as towell2026masked."
-  - path: "~/github/papers/phenotype-coarsening"
+  - path: "~/github/coarsening/papers/phenotype-coarsening"
     rel: "extended-by"
     label: "Sibling paper on phenotype coarsening; cites as towell2026masked."
-  - path: "~/github/papers/reliability-estimation-in-series-systems"
+  - path: "~/github/masked/reliability-estimation-in-series-systems"
     rel: "supersedes"
     label: "Authors's MS project (2023); this paper generalises the Weibull-specific treatment."
-  - path: "~/github/papers/masked-series-companions"
+  - path: "~/github/masked"
     rel: "companion"
-    label: "Companion suite (Weibull MLE, deterministic masking, weibull-masked-FIM, consequence analysis)."
-  - path: "~/github/papers/mdrelax"
+    label: "Companion papers, now standalone repos under ~/github/masked/ (weibull-masked-fim, deterministic-masking, weibull-series-consequence); the masked-series-companions monorepo was dissolved 2026-06-08."
+  - path: "~/github/masked/mdrelax"
     rel: "implemented-by"
     label: "R package (mdrelax) and paper on relaxed C1/C2/C3 candidate-set models."
   - path: "~/github/rlang/maskedcauses"
@@ -201,7 +201,7 @@ Migrated from legacy `.papermill.md` on 2026-05-27. All recorded thesis, prior-a
 
 ## Related Work and Software
 
-This paper is the foundational reference for a series on masked-data coarsening. Five sibling papers (`scrna-coarsening`, `spatial-coarsening`, `dp-coarsening`, `weaksup-coarsening`, `phenotype-coarsening`, all under `~/github/papers/`) cite it as `towell2026masked` and apply the C1/C2/C3 framework outside reliability (single-cell genomics, spatial transcriptomics, differential privacy, weakly supervised learning, phenotype data).
+This paper is the foundational reference for a series on masked-data coarsening. Five sibling papers (`scrna-coarsening`, `spatial-coarsening`, `dp-coarsening`, `weaksup-coarsening`, `phenotype-coarsening`, all under `~/github/coarsening/papers/`) cite it as `towell2026masked` and apply the C1/C2/C3 framework outside reliability (single-cell genomics, spatial transcriptomics, differential privacy, weakly supervised learning, phenotype data).
 
 Three R packages implement the framework: `maskedcauses` (closed-form Exp/Weibull, composable observation functors), `maskedhaz` (arbitrary hazard functions, builds on `flexhaz` and `serieshaz`), and the original `wei.series.md.c1.c2.c3` (Weibull-specific). Supporting infrastructure lives in `algebraic.mle`, `likelihood.model`, `hypothesize`, and `compositional.mle`. The `mdrelax` paper and R package develop the relaxed-conditions extension.
 
